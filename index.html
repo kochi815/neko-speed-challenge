@@ -91,8 +91,9 @@
     </ul>
   </div>
   <button id="startBtn">スタート</button>
-$1
-  $1
+  <button id="homeBtn" style="display: none;">ホームにもどる</button>
+  <button id="rankBtn" style="display: inline-block;">称号一覧</button>
+  <button id="homeBtn" style="display: none;">ホームにもどる</button>
 
 
   <script>
@@ -117,9 +118,8 @@ $1
     const rankList = document.getElementById("rankList");
 
     rankBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // これが画面タップ処理を防ぐ
+      e.stopPropagation();
       rankList.style.display = rankList.style.display === "none" ? "block" : "none";
-    });
     });
 
     function toggleRankButton(show) {
@@ -241,7 +241,8 @@ $1
 
     homeBtn.addEventListener("click", () => location.reload());
     document.body.addEventListener("click", (e) => {
-      if (!e.target.closest('button')) {
+      const ignore = ["startBtn", "rankBtn", "homeBtn"];
+      if (!ignore.includes(e.target.id)) {
         nextStep();
       }
     });
