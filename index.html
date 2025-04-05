@@ -4,91 +4,142 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ねこスピードチャレンジ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
-    /* bodyタグにスタイルを統合 */
+    /* ステップ1: フォントと基本スタイル */
     body {
-      font-family: "Courier New", monospace;
+      /* font-family: "Courier New", monospace; を変更 */
+      font-family: 'M PLUS Rounded 1c', sans-serif; /* ★変更: Webフォント適用 */
       text-align: center;
-      background-color: #fffaf0;
+      /* background-color: #fffaf0; を変更 */
+      background-color: #f0f8ff; /* ★変更: AliceBlue 背景色 */
       margin: 0;
-      padding: 10px;
-      overflow-x: hidden; /* 横スクロール禁止 */
-      display: flex; /* #bodyから移動 */
-      flex-direction: column; /* #bodyから移動 */
-      justify-content: flex-start; /* #bodyから移動 */
-      align-items: center; /* #bodyから移動 */
-      min-height: 100vh; /* #bodyから移動 */
-      overflow-y: auto; /* #bodyから移動 (初期値) */
-      padding-bottom: 20px; /* #bodyから移動 */
-      height: 100%; /* html, bodyセレクタから移動 */
+      padding: 15px; /* ★変更: 少し余白を増やす */
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      min-height: 100vh;
+      overflow-y: auto;
+      padding-bottom: 30px; /* ★変更: 下部余白調整 */
+      height: 100%;
+      color: #444; /* ★変更: 基本文字色 */
     }
-    /* htmlタグのスタイル */
     html {
       height: 100%;
     }
+
+    /* ステップ1: タイトル */
     h1 {
-      font-size: 2em;
+      font-size: 2.2em; /* ★変更: 少し大きく */
+      color: #4682b4; /* ★変更: SteelBlue */
+      margin-top: 20px; /* ★追加: 上部マージン */
+      margin-bottom: 15px; /* ★変更: 下部マージン調整 */
+      font-weight: 700; /* 太字 */
     }
+
+    /* ステップ1: 問題表示エリア */
     #question {
-      font-size: 4em;
-      margin: 40px 0 20px 0;
+      font-size: 4.5em; /* ★変更: さらに大きく */
+      margin: 30px 0 30px 0; /* ★変更: 上下マージン調整 */
+      color: #333; /* ★変更: 少し濃く */
+      font-weight: 700; /* 太字 */
+      line-height: 1.2; /* ★追加: 行間調整 */
+      min-height: 1.5em; /* ★追加: 問題がない時も高さを確保 */
     }
-    #questionNumber, #timer, #titleBadge, #coinInfo {
-      font-size: 1em;
+
+    /* ステップ1: 情報表示 (コイン、問題数、タイマー、称号) */
+    #coinInfo {
+        font-size: 1.1em;
+        color: #666;
+        margin-bottom: 10px; /* ★変更 */
+    }
+    #questionNumber, #timer {
+      font-size: 1.1em; /* ★変更: 少し大きく */
       color: #555;
-      margin: 5px 0;
+      margin: 3px 0; /* ★変更: 上下マージン調整 */
+    }
+    #titleBadge {
+        font-size: 1.3em; /* ★変更: 称号を大きく */
+        color: #ff6347; /* ★変更: Tomato色 */
+        margin: 15px 0; /* ★変更: 上下マージン */
+        font-weight: 700; /* 太字 */
+        min-height: 1.3em; /* ★追加: 空でも高さを確保 */
     }
     #info {
       font-size: 1.2em;
-      color: #666;
+      color: #777; /* ★変更 */
+      margin-bottom: 20px; /* ★追加: ボタンとの間隔 */
+      min-height: 1.5em; /* ★追加 */
     }
+
+    /* ステップ1: ボタン */
     #startBtn, #homeBtn, #rankBtn {
-      font-size: 1.2em;
-      padding: 10px 30px;
+      font-family: 'M PLUS Rounded 1c', sans-serif; /* ボタンにもフォント適用 */
+      font-size: 1.3em; /* ★変更: 大きく */
+      padding: 15px 35px; /* ★変更: パディング調整でさらに大きく */
       margin: 10px;
       border: none;
-      border-radius: 10px;
+      /* border-radius: 10px; を変更 */
+      border-radius: 30px; /* ★変更: 角をより丸く（カプセル型に近づける）*/
       background-color: #ffb6c1; /* Light Pink */
       color: white;
       cursor: pointer;
-      transition: background-color 0.2s; /* ホバー効果用 */
+      transition: background-color 0.2s, transform 0.1s; /* transformもtransition対象に */
+      font-weight: 700; /* 太字 */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* ★追加: 影をつける */
     }
     #startBtn:hover, #homeBtn:hover, #rankBtn:hover {
         background-color: #ff9aaa; /* 少し濃いピンク */
     }
+    /* ★追加: ボタンタップ時の効果 */
+    #startBtn:active, #homeBtn:active, #rankBtn:active {
+        transform: scale(0.97); /* 少し小さくする */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 影を浅くする */
+    }
 
+
+    /* ステップ1: 称号一覧リスト */
     #rankList {
       display: none;
-      margin-top: 20px;
-      background: #fff;
-      padding: 15px;
-      border-radius: 10px;
+      margin-top: 25px; /* ★変更 */
+      background: #ffffff; /* ★変更: 白背景 */
+      padding: 20px; /* ★変更: 内側余白 */
+      border-radius: 15px; /* ★変更: 角丸 */
       text-align: left;
       font-size: 1em;
       max-width: 500px;
-      width: 85%; /* 画面幅に応じて調整 */
+      width: 90%; /* ★変更: 幅調整 */
       margin-left: auto;
       margin-right: auto;
-      color: #333;
-      border: 1px solid #eee; /* 境界線を少しつける */
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 影をつける */
+      color: #555; /* ★変更 */
+      border: 1px solid #ddd; /* ★変更: 枠線 */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* ★変更: 影 */
     }
     #rankList h2 {
-        text-align: center; /* 中央揃え */
+        text-align: center;
         margin-top: 0;
+        margin-bottom: 15px; /* ★変更 */
         color: #ff6347; /* Tomato */
+        font-size: 1.4em; /* ★変更 */
+        font-weight: 700;
     }
     #rankList ul {
         list-style: none;
         padding: 0;
     }
     #rankList li {
-        margin-bottom: 8px; /* 各項目の間隔 */
-        padding-bottom: 8px; /* 下線との間隔 */
-        border-bottom: 1px dashed #eee; /* 区切り線 */
+        margin-bottom: 10px; /* ★変更 */
+        padding-bottom: 10px; /* ★変更 */
+        border-bottom: 1px dashed #eee;
+        line-height: 1.5; /* ★追加: 行間 */
     }
     #rankList li:last-child {
-        border-bottom: none; /* 最後の項目は線なし */
+        border-bottom: none;
     }
 
     /* 結果表示用のハイライトスタイル */
@@ -99,22 +150,30 @@
 
     /* レスポンシブ対応（小さい画面向け） */
     @media (max-width: 600px) {
+        body {
+            padding: 10px; /* スマホでは少し余白を減らす */
+            padding-bottom: 20px;
+        }
         h1 {
             font-size: 1.8em;
         }
         #question {
-            font-size: 3em;
-            margin: 30px 0 15px 0;
+            font-size: 3.5em; /* 少し調整 */
+            margin: 20px 0 20px 0;
         }
         #startBtn, #homeBtn, #rankBtn {
-            font-size: 1em;
-            padding: 12px 25px; /* 少し縦長に */
+            font-size: 1.1em; /* 少し調整 */
+            padding: 12px 30px; /* 少し調整 */
+            border-radius: 25px; /* 少し調整 */
         }
         #rankList {
             width: 90%;
+            padding: 15px;
+        }
+        #rankList h2 {
+            font-size: 1.3em;
         }
     }
-
   </style>
 </head>
 <body>
@@ -146,6 +205,7 @@
   <button id="rankBtn" style="display: inline-block;">称号一覧</button>
 
   <script>
+    // JavaScript部分は変更ありません
     const totalQuestions = 30;
     let problems = [];
     let selected = [];
@@ -155,7 +215,6 @@
     let gameStarted = false;
     let timerInterval;
 
-    // DOM要素取得
     const question = document.getElementById("question");
     const questionNumber = document.getElementById("questionNumber");
     const timer = document.getElementById("timer");
@@ -167,7 +226,6 @@
     const rankBtn = document.getElementById("rankBtn");
     const rankList = document.getElementById("rankList");
 
-    // --- 称号とコインの定義 ---
     const ranks = [
       { maxTime: 30.0, title: "🚀 光速のネコ", coins: 150 },
       { maxTime: 35.0, title: "✨ 神速のネコ", coins: 130 },
@@ -179,200 +237,161 @@
       { maxTime: 53.0, title: "😸 ふつうよりちょいのんびりねこ", coins: 55 },
       { maxTime: 55.0, title: "🐢 のんびりねこ", coins: 45 },
       { maxTime: 70.0, title: "💤 ねむたいねこ", coins: 30 },
-      { maxTime: Infinity, title: "🐌 まったりねこ", coins: 10 } // 最後のエントリー
+      { maxTime: Infinity, title: "🐌 まったりねこ", coins: 10 }
     ];
 
-    // 時間に応じたランク情報（称号とコイン）を取得する関数
     function getRank(time) {
-      const numericTime = parseFloat(time); // 比較のために数値に変換
+      const numericTime = parseFloat(time);
       for (const rank of ranks) {
         if (numericTime <= rank.maxTime) {
           return rank;
         }
       }
-      // 通常はInfinityでキャッチされるが、念のため最後を返す
       return ranks[ranks.length - 1];
     }
 
-    // 称号一覧ボタンのイベントリスナー
     rankBtn.addEventListener("click", (e) => {
-      e.preventDefault(); // ボタンのデフォルト動作を防ぐ
-      e.stopPropagation(); // イベントの伝播を停止（bodyへのクリックと区別）
+      e.preventDefault();
+      e.stopPropagation();
       rankList.style.display = rankList.style.display === "none" ? "block" : "none";
     });
 
-    // 称号一覧ボタンの表示/非表示を切り替える関数
     function toggleRankButton(show) {
       rankBtn.style.display = show ? "inline-block" : "none";
     }
 
-    // ローカルストレージからコインを取得する関数
     function getCoins() {
       return parseInt(localStorage.getItem("coins") || "0");
     }
 
-    // コインをローカルストレージに保存し、表示を更新する関数
     function setCoins(value) {
       localStorage.setItem("coins", value);
       coinInfo.textContent = `💰 ねこコイン: ${value}`;
     }
 
-    // 問題を生成しシャッフルする関数
     function generateProblems() {
       problems = [];
-      // 九九 (2x2 から 9x9)
       for (let a = 2; a < 10; a++) {
         for (let b = 2; b < 10; b++) {
           problems.push({ q: `${a} × ${b}`, a: a * b });
-          // 対応する割り算 (例: 6x3=18 なら 18÷6=3)
-          // a*bがaで割り切れるのは自明だが、一応形式的に記述
           if ((a * b) % a === 0) {
              problems.push({ q: `${a * b} ÷ ${a}`, a: b });
           }
-          // bで割る問題も追加 (a=b の場合を除く)
           if (a !== b && (a * b) % b === 0) {
              problems.push({ q: `${a * b} ÷ ${b}`, a: a });
           }
         }
       }
-
-      // Fisher-Yates (Knuth) Shuffle アルゴリズムで問題をシャッフル
       for (let i = problems.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
-          [problems[i], problems[j]] = [problems[j], problems[i]]; // 要素を入れ替え
+          [problems[i], problems[j]] = [problems[j], problems[i]];
       }
-      // シャッフルされた問題から指定数だけ選択
       selected = problems.slice(0, totalQuestions);
     }
 
-    // タイマー表示を更新する関数
     function updateTimer() {
       const now = Date.now();
-      const elapsed = ((now - startTime) / 1000).toFixed(1); // 秒単位、小数点以下1桁
+      const elapsed = ((now - startTime) / 1000).toFixed(1);
       timer.textContent = `タイム: ${elapsed} 秒`;
     }
 
-    // 次の問題を表示する関数
     function showQuestion() {
       if (index < selected.length) {
-        questionNumber.textContent = `(${index + 1}/${totalQuestions})`; // 問題番号表示
-        question.textContent = selected[index].q; // 問題文表示
-        showingAnswer = false; // 回答表示フラグをリセット
+        questionNumber.textContent = `(${index + 1}/${totalQuestions})`;
+        question.textContent = selected[index].q;
+        showingAnswer = false;
       } else {
-        endGame(); // 全ての問題が終わったらゲーム終了
+        endGame();
       }
     }
 
-    // 現在の問題の答えを表示する関数
     function showAnswer() {
-      question.textContent = selected[index].a; // 回答表示
-      showingAnswer = true; // 回答表示フラグをセット
+      question.textContent = selected[index].a;
+      showingAnswer = true;
     }
 
-    // クリック/タップで次のステップに進む関数 (回答表示/次の問題)
     function nextStep() {
-      if (!gameStarted) return; // ゲームが開始されていなければ何もしない
-
+      if (!gameStarted) return;
       if (!showingAnswer) {
-        showAnswer(); // 問題表示中なら回答を表示
+        showAnswer();
       } else {
-        index++; // 回答表示中ならインデックスを進めて
-        showQuestion(); // 次の問題を表示
+        index++;
+        showQuestion();
       }
     }
 
-    // ゲーム終了時の処理を行う関数
     function endGame() {
-      toggleRankButton(true); // 称号一覧ボタンを表示
-      clearInterval(timerInterval); // タイマー停止
-      gameStarted = false; // ゲーム終了フラグをセット
-      homeBtn.style.display = "inline-block"; // ホームボタンを表示
+      toggleRankButton(true);
+      clearInterval(timerInterval);
+      gameStarted = false;
+      homeBtn.style.display = "inline-block";
       const endTime = Date.now();
-      const elapsed = ((endTime - startTime) / 1000).toFixed(1); // 経過時間を計算
+      const elapsed = ((endTime - startTime) / 1000).toFixed(1);
 
-      const resultRank = getRank(elapsed); // タイムからランク情報を取得
-      info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`; // 結果表示
-      titleBadge.textContent = resultRank.title; // 称号表示
+      const resultRank = getRank(elapsed);
+      info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`;
+      titleBadge.textContent = resultRank.title;
 
-      const earned = resultRank.coins; // 獲得コイン数を取得
-      const current = getCoins(); // 現在のコイン数を取得
-      setCoins(current + earned); // コインを加算して保存・表示
+      const earned = resultRank.coins;
+      const current = getCoins();
+      setCoins(current + earned);
 
-      // 結果アラートを少し遅れて表示
       setTimeout(() => {
         alert(`🎉 ${earned} コインを獲得したよ！`);
       }, 300);
 
-      // スクロールを再度有効にする
       document.documentElement.style.overflowY = "auto";
       document.body.style.overflowY = "auto";
     }
 
-    // スタートボタンのイベントリスナー
     startBtn.addEventListener("click", () => {
-      // ゲーム中のスクロールを禁止
       document.documentElement.style.overflowY = "hidden";
       document.body.style.overflowY = "hidden";
-
-      // UI初期化
       questionNumber.textContent = "";
       timer.textContent = "";
-      toggleRankButton(false); // 称号一覧ボタンを隠す
-      rankList.style.display = "none"; // 称号一覧リストも隠す
-      generateProblems(); // 問題生成
-      index = 0; // 問題インデックスリセット
-      gameStarted = true; // ゲーム開始フラグ
-      startTime = Date.now(); // 開始時間記録
-      startBtn.style.display = "none"; // スタートボタン非表示
-      homeBtn.style.display = "none"; // ホームボタン非表示
-      info.textContent = "がんばってね！"; // メッセージ変更
-      titleBadge.textContent = ""; // 称号リセット
-      showQuestion(); // 最初の問題表示
-      timerInterval = setInterval(updateTimer, 100); // タイマースタート (100ms毎更新)
+      toggleRankButton(false);
+      rankList.style.display = "none";
+      generateProblems();
+      index = 0;
+      gameStarted = true;
+      startTime = Date.now();
+      startBtn.style.display = "none";
+      homeBtn.style.display = "none";
+      info.textContent = "がんばってね！";
+      titleBadge.textContent = "";
+      question.textContent = ''; // 開始時に前の問題が残らないようにクリア
+      showQuestion();
+      timerInterval = setInterval(updateTimer, 100);
     });
 
-    // ホームボタンのイベントリスナー
     homeBtn.addEventListener("click", () => {
-      // ページを再読み込みしてゲームをリセット
       location.reload();
     });
 
-    // body要素へのクリック（タップ）イベントリスナー (ゲーム進行用)
     document.body.addEventListener("click", (e) => {
-      // クリックされた要素がボタン（またはその中身）かどうかをチェック
       let targetElement = e.target;
-      let isButton = false;
-      const buttonIds = ["startBtn", "rankBtn", "homeBtn"];
+      let isButtonOrRankList = false;
+      const ignoreIds = ["startBtn", "rankBtn", "homeBtn", "rankList"];
 
       while (targetElement != null) {
-          if (buttonIds.includes(targetElement.id)) {
-              isButton = true;
-              break; // ボタンが見つかったらループ終了
-          }
-          // 称号一覧(rankList)の中をクリックした場合も無視する
-          if (targetElement.id === "rankList") {
-              isButton = true; // ボタンではないが、無視する対象として扱う
+          // IDでチェック or rankList自体かその中身か
+          if (ignoreIds.includes(targetElement.id) || targetElement.closest('#rankList')) {
+              isButtonOrRankList = true;
               break;
           }
-          targetElement = targetElement.parentElement; // 親要素をたどる
+          targetElement = targetElement.parentElement;
       }
 
-      // ボタンまたは称号一覧以外の場所がクリックされたらゲームを進める
-      if (!isButton) {
+      if (!isButtonOrRankList && gameStarted) { // ゲーム開始後のみ反応
         nextStep();
       }
     });
 
-    // 初期コイン表示読み込み
     setCoins(getCoins());
 
-    // --- おまけ: 画面サイズ変更時に称号リストがはみ出さないように調整 ---
-    // (必須ではないですが、レスポンシブ対応を少し強化)
     window.addEventListener('resize', () => {
-        // 必要であれば、ここで要素のスタイルを調整するロジックを追加できます
-        // 例: rankListの高さを調整するなど
+      // 必要であればリサイズ時の処理
     });
-
   </script>
 </body>
 </html>
