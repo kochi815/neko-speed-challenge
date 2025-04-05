@@ -90,9 +90,10 @@
       <li>🐌 まったりねこ：10コイン（71秒以上）</li>
     </ul>
   </div>
-  <button id="rankBtn">称号一覧</button>
   <button id="startBtn">スタート</button>
-  <button id="homeBtn" style="display: none;">ホームにもどる</button>
+$1
+  $1
+
 
   <script>
     const totalQuestions = 30;
@@ -115,8 +116,10 @@
     const rankBtn = document.getElementById("rankBtn");
     const rankList = document.getElementById("rankList");
 
-    rankBtn.addEventListener("click", () => {
+    rankBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // これが画面タップ処理を防ぐ
       rankList.style.display = rankList.style.display === "none" ? "block" : "none";
+    });
     });
 
     function toggleRankButton(show) {
