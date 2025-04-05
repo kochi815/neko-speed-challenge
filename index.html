@@ -28,7 +28,7 @@
       font-size: 1.2em;
       color: #666;
     }
-    #startBtn, #homeBtn {
+    #startBtn, #homeBtn, #rankBtn {
       font-size: 1.2em;
       padding: 10px 30px;
       margin: 10px;
@@ -37,6 +37,28 @@
       background-color: #ffb6c1;
       color: white;
       cursor: pointer;
+    }
+    html, body {
+      height: 100%;
+    }
+    #body {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+    }
+    #rankList {
+      display: none;
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: left;
+      font-size: 1em;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      color: #333;
     }
   </style>
 </head>
@@ -48,6 +70,23 @@
   <div id="timer"></div>
   <div id="question">=^･ω･^=</div>
   <div id="titleBadge"></div>
+  <div id="rankList">
+    <h2>🏅 称号と報酬一覧</h2>
+    <ul style="list-style: none; padding: 0;">
+      <li>🚀 光速のネコ：150コイン（～30秒）</li>
+      <li>✨ 神速のネコ：130コイン（～35秒）</li>
+      <li>⚡ とてもはやねこ：115コイン（～38秒）</li>
+      <li>🏃‍♂️ はやねこ：100コイン（～41秒）</li>
+      <li>🐾 ちょいはやねこ：90コイン（～44秒）</li>
+      <li>🐱 がんばりねこ：80コイン（～47秒）</li>
+      <li>😺 ふつうねこ：70コイン（～50秒）</li>
+      <li>😸 ふつうよりちょいのんびりねこ：55コイン（～53秒）</li>
+      <li>🐢 のんびりねこ：45コイン（～55秒）</li>
+      <li>💤 ねむたいねこ：30コイン（～70秒）</li>
+      <li>🐌 まったりねこ：10コイン（71秒以上）</li>
+    </ul>
+  </div>
+  <button id="rankBtn">称号一覧</button>
   <button id="startBtn">スタート</button>
   <button id="homeBtn" style="display: none;">ホームにもどる</button>
 
@@ -69,6 +108,12 @@
     const startBtn = document.getElementById("startBtn");
     const homeBtn = document.getElementById("homeBtn");
     const coinInfo = document.getElementById("coinInfo");
+    const rankBtn = document.getElementById("rankBtn");
+    const rankList = document.getElementById("rankList");
+
+    rankBtn.addEventListener("click", () => {
+      rankList.style.display = rankList.style.display === "none" ? "block" : "none";
+    });
 
     function getCoins() {
       return parseInt(localStorage.getItem("coins") || "0");
@@ -123,28 +168,30 @@
     }
 
     function assignTitle(time) {
-      if (time <= 34) return "👑 ねこプリンセス★MAX";
-      if (time <= 37) return "✨ きらきらねこマスター";
-      if (time <= 40) return "🎀 ひらめきねこ";
-      if (time <= 43) return "💡 かしこいねこ";
-      if (time <= 46) return "💪 がんばりねこ";
-      if (time <= 49) return "🐾 れんしゅうねこ";
-      if (time <= 54) return "🍀 ふつうねこ";
-      if (time <= 59) return "🐢 ちょっとねむいねこ";
-      if (time <= 69) return "💤 おひるねねこ";
+      if (time <= 30) return "🚀 光速のネコ";
+      if (time <= 35) return "✨ 神速のネコ";
+      if (time <= 38) return "⚡ とてもはやねこ";
+      if (time <= 41) return "🏃‍♂️ はやねこ";
+      if (time <= 44) return "🐾 ちょいはやねこ";
+      if (time <= 47) return "🐱 がんばりねこ";
+      if (time <= 50) return "😺 ふつうねこ";
+      if (time <= 53) return "😸 ふつうよりちょいのんびりねこ";
+      if (time <= 55) return "🐢 のんびりねこ";
+      if (time <= 70) return "💤 ねむたいねこ";
       return "🐌 まったりねこ";
     }
 
     function calculateCoins(time) {
-      if (time <= 34) return 150;
-      if (time <= 37) return 130;
-      if (time <= 40) return 110;
-      if (time <= 43) return 90;
-      if (time <= 46) return 70;
-      if (time <= 49) return 60;
-      if (time <= 54) return 40;
-      if (time <= 59) return 30;
-      if (time <= 69) return 20;
+      if (time <= 30) return 150;
+      if (time <= 35) return 130;
+      if (time <= 38) return 115;
+      if (time <= 41) return 100;
+      if (time <= 44) return 90;
+      if (time <= 47) return 80;
+      if (time <= 50) return 70;
+      if (time <= 53) return 55;
+      if (time <= 55) return 45;
+      if (time <= 70) return 30;
       return 10;
     }
 
