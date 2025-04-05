@@ -93,7 +93,6 @@
   <button id="startBtn">スタート</button>
   <button id="homeBtn" style="display: none;">ホームにもどる</button>
   <button id="rankBtn" style="display: inline-block;">称号一覧</button>
-  <button id="homeBtn" style="display: none;">ホームにもどる</button>
 
 
   <script>
@@ -118,7 +117,8 @@
     const rankList = document.getElementById("rankList");
 
     rankBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
+      e.preventDefault();
+      e.stopImmediatePropagation();
       rankList.style.display = rankList.style.display === "none" ? "block" : "none";
     });
 
@@ -226,6 +226,11 @@
     }
 
     startBtn.addEventListener("click", () => {
+      document.documentElement.style.overflowY = "hidden";
+      document.body.style.overflowY = "hidden";
+      questionNumber.textContent = "";
+      timer.textContent = "";
+      document.body.style.overflowY = "hidden";
       toggleRankButton(false);
       generateProblems();
       index = 0;
@@ -239,7 +244,12 @@
       timerInterval = setInterval(updateTimer, 100);
     });
 
-    homeBtn.addEventListener("click", () => location.reload());
+    homeBtn.addEventListener("click", () => {
+      document.documentElement.style.overflowY = "auto";
+      document.body.style.overflowY = "auto";
+      document.body.style.overflowY = "auto";
+      location.reload();
+    });
     document.body.addEventListener("click", (e) => {
       const ignore = ["startBtn", "rankBtn", "homeBtn"];
       if (!ignore.includes(e.target.id)) {
