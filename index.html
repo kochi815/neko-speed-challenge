@@ -9,15 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ステップ1: フォントと基本スタイル */
+    /* --- 前回のスタイルは省略 --- */
     body {
-      /* font-family: "Courier New", monospace; を変更 */
-      font-family: 'M PLUS Rounded 1c', sans-serif; /* ★変更: Webフォント適用 */
+      font-family: 'M PLUS Rounded 1c', sans-serif;
       text-align: center;
-      /* background-color: #fffaf0; を変更 */
-      background-color: #f0f8ff; /* ★変更: AliceBlue 背景色 */
+      background-color: #f0f8ff; /* AliceBlue */
       margin: 0;
-      padding: 15px; /* ★変更: 少し余白を増やす */
+      padding: 15px;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
@@ -25,155 +23,70 @@
       align-items: center;
       min-height: 100vh;
       overflow-y: auto;
-      padding-bottom: 30px; /* ★変更: 下部余白調整 */
+      padding-bottom: 30px;
       height: 100%;
-      color: #444; /* ★変更: 基本文字色 */
+      color: #444;
     }
-    html {
-      height: 100%;
-    }
-
-    /* ステップ1: タイトル */
-    h1 {
-      font-size: 2.2em; /* ★変更: 少し大きく */
-      color: #4682b4; /* ★変更: SteelBlue */
-      margin-top: 20px; /* ★追加: 上部マージン */
-      margin-bottom: 15px; /* ★変更: 下部マージン調整 */
-      font-weight: 700; /* 太字 */
-    }
-
-    /* ステップ1: 問題表示エリア */
+    html { height: 100%; }
+    h1 { font-size: 2.2em; color: #4682b4; margin-top: 20px; margin-bottom: 15px; font-weight: 700; }
     #question {
-      font-size: 4.5em; /* ★変更: さらに大きく */
-      margin: 30px 0 30px 0; /* ★変更: 上下マージン調整 */
-      color: #333; /* ★変更: 少し濃く */
-      font-weight: 700; /* 太字 */
-      line-height: 1.2; /* ★追加: 行間調整 */
-      min-height: 1.5em; /* ★追加: 問題がない時も高さを確保 */
-    }
-
-    /* ステップ1: 情報表示 (コイン、問題数、タイマー、称号) */
-    #coinInfo {
-        font-size: 1.1em;
-        color: #666;
-        margin-bottom: 10px; /* ★変更 */
-    }
-    #questionNumber, #timer {
-      font-size: 1.1em; /* ★変更: 少し大きく */
-      color: #555;
-      margin: 3px 0; /* ★変更: 上下マージン調整 */
-    }
-    #titleBadge {
-        font-size: 1.3em; /* ★変更: 称号を大きく */
-        color: #ff6347; /* ★変更: Tomato色 */
-        margin: 15px 0; /* ★変更: 上下マージン */
-        font-weight: 700; /* 太字 */
-        min-height: 1.3em; /* ★追加: 空でも高さを確保 */
-    }
-    #info {
-      font-size: 1.2em;
-      color: #777; /* ★変更 */
-      margin-bottom: 20px; /* ★追加: ボタンとの間隔 */
-      min-height: 1.5em; /* ★追加 */
-    }
-
-    /* ステップ1: ボタン */
-    #startBtn, #homeBtn, #rankBtn {
-      font-family: 'M PLUS Rounded 1c', sans-serif; /* ボタンにもフォント適用 */
-      font-size: 1.3em; /* ★変更: 大きく */
-      padding: 15px 35px; /* ★変更: パディング調整でさらに大きく */
-      margin: 10px;
-      border: none;
-      /* border-radius: 10px; を変更 */
-      border-radius: 30px; /* ★変更: 角をより丸く（カプセル型に近づける）*/
-      background-color: #ffb6c1; /* Light Pink */
-      color: white;
-      cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s; /* transformもtransition対象に */
-      font-weight: 700; /* 太字 */
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* ★追加: 影をつける */
-    }
-    #startBtn:hover, #homeBtn:hover, #rankBtn:hover {
-        background-color: #ff9aaa; /* 少し濃いピンク */
-    }
-    /* ★追加: ボタンタップ時の効果 */
-    #startBtn:active, #homeBtn:active, #rankBtn:active {
-        transform: scale(0.97); /* 少し小さくする */
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 影を浅くする */
-    }
-
-
-    /* ステップ1: 称号一覧リスト */
-    #rankList {
-      display: none;
-      margin-top: 25px; /* ★変更 */
-      background: #ffffff; /* ★変更: 白背景 */
-      padding: 20px; /* ★変更: 内側余白 */
-      border-radius: 15px; /* ★変更: 角丸 */
-      text-align: left;
-      font-size: 1em;
-      max-width: 500px;
-      width: 90%; /* ★変更: 幅調整 */
-      margin-left: auto;
-      margin-right: auto;
-      color: #555; /* ★変更 */
-      border: 1px solid #ddd; /* ★変更: 枠線 */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* ★変更: 影 */
-    }
-    #rankList h2 {
-        text-align: center;
-        margin-top: 0;
-        margin-bottom: 15px; /* ★変更 */
-        color: #ff6347; /* Tomato */
-        font-size: 1.4em; /* ★変更 */
+        font-size: 4.5em;
+        margin: 30px 0 30px 0;
+        color: #333;
         font-weight: 700;
+        line-height: 1.2;
+        min-height: 1.5em;
+        /* ステップ2: アニメーションの起点となるスタイルを追加 */
+        opacity: 1; /* 初期状態は不透明 */
+        transform: scale(1); /* 初期状態は等倍 */
     }
-    #rankList ul {
-        list-style: none;
-        padding: 0;
+    #coinInfo { font-size: 1.1em; color: #666; margin-bottom: 10px; }
+    #questionNumber, #timer { font-size: 1.1em; color: #555; margin: 3px 0; }
+    #titleBadge { font-size: 1.3em; color: #ff6347; margin: 15px 0; font-weight: 700; min-height: 1.3em; }
+    #info { font-size: 1.2em; color: #777; margin-bottom: 20px; min-height: 1.5em; }
+    #startBtn, #homeBtn, #rankBtn {
+      font-family: 'M PLUS Rounded 1c', sans-serif;
+      font-size: 1.3em; padding: 15px 35px; margin: 10px;
+      border: none; border-radius: 30px; background-color: #ffb6c1;
+      color: white; cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      font-weight: 700; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    #rankList li {
-        margin-bottom: 10px; /* ★変更 */
-        padding-bottom: 10px; /* ★変更 */
-        border-bottom: 1px dashed #eee;
-        line-height: 1.5; /* ★追加: 行間 */
-    }
-    #rankList li:last-child {
-        border-bottom: none;
-    }
-
-    /* 結果表示用のハイライトスタイル */
-    .highlight {
-      color: #ff6347; /* Tomato色 */
-      font-weight: bold;
-    }
-
-    /* レスポンシブ対応（小さい画面向け） */
+    #startBtn:hover, #homeBtn:hover, #rankBtn:hover { background-color: #ff9aaa; }
+    #startBtn:active, #homeBtn:active, #rankBtn:active { transform: scale(0.97); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    #rankList { display: none; margin-top: 25px; background: #ffffff; padding: 20px; border-radius: 15px; text-align: left; font-size: 1em; max-width: 500px; width: 90%; margin-left: auto; margin-right: auto; color: #555; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    #rankList h2 { text-align: center; margin-top: 0; margin-bottom: 15px; color: #ff6347; font-size: 1.4em; font-weight: 700; }
+    #rankList ul { list-style: none; padding: 0; }
+    #rankList li { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #eee; line-height: 1.5; }
+    #rankList li:last-child { border-bottom: none; }
+    .highlight { color: #ff6347; font-weight: bold; }
     @media (max-width: 600px) {
-        body {
-            padding: 10px; /* スマホでは少し余白を減らす */
-            padding-bottom: 20px;
-        }
-        h1 {
-            font-size: 1.8em;
-        }
-        #question {
-            font-size: 3.5em; /* 少し調整 */
-            margin: 20px 0 20px 0;
-        }
-        #startBtn, #homeBtn, #rankBtn {
-            font-size: 1.1em; /* 少し調整 */
-            padding: 12px 30px; /* 少し調整 */
-            border-radius: 25px; /* 少し調整 */
-        }
-        #rankList {
-            width: 90%;
-            padding: 15px;
-        }
-        #rankList h2 {
-            font-size: 1.3em;
-        }
+        body { padding: 10px; padding-bottom: 20px; }
+        h1 { font-size: 1.8em; }
+        #question { font-size: 3.5em; margin: 20px 0 20px 0; }
+        #startBtn, #homeBtn, #rankBtn { font-size: 1.1em; padding: 12px 30px; border-radius: 25px; }
+        #rankList { width: 90%; padding: 15px; }
+        #rankList h2 { font-size: 1.3em; }
     }
+
+    /* --- ステップ2: アニメーションの追加 --- */
+    @keyframes fadeInScaleUp {
+      from {
+        opacity: 0;
+        transform: scale(0.8); /* 少し小さく透明な状態から開始 */
+      }
+      to {
+        opacity: 1;
+        transform: scale(1); /* 通常のサイズ・不透明度へ */
+      }
+    }
+
+    .animate-reveal {
+      /* アニメーションを適用 */
+      animation: fadeInScaleUp 0.3s ease-out; /* 0.3秒かけて表示 */
+    }
+    /* --- ステップ2 ここまで --- */
+
   </style>
 </head>
 <body>
@@ -205,7 +118,6 @@
   <button id="rankBtn" style="display: inline-block;">称号一覧</button>
 
   <script>
-    // JavaScript部分は変更ありません
     const totalQuestions = 30;
     let problems = [];
     let selected = [];
@@ -215,6 +127,7 @@
     let gameStarted = false;
     let timerInterval;
 
+    // 要素取得 (question 変数はここで取得済み)
     const question = document.getElementById("question");
     const questionNumber = document.getElementById("questionNumber");
     const timer = document.getElementById("timer");
@@ -226,172 +139,56 @@
     const rankBtn = document.getElementById("rankBtn");
     const rankList = document.getElementById("rankList");
 
-    const ranks = [
-      { maxTime: 30.0, title: "🚀 光速のネコ", coins: 150 },
-      { maxTime: 35.0, title: "✨ 神速のネコ", coins: 130 },
-      { maxTime: 38.0, title: "⚡ とてもはやねこ", coins: 115 },
-      { maxTime: 41.0, title: "🏃‍♂️ はやねこ", coins: 100 },
-      { maxTime: 44.0, title: "🐾 ちょいはやねこ", coins: 90 },
-      { maxTime: 47.0, title: "🐱 がんばりねこ", coins: 80 },
-      { maxTime: 50.0, title: "😺 ふつうねこ", coins: 70 },
-      { maxTime: 53.0, title: "😸 ふつうよりちょいのんびりねこ", coins: 55 },
-      { maxTime: 55.0, title: "🐢 のんびりねこ", coins: 45 },
-      { maxTime: 70.0, title: "💤 ねむたいねこ", coins: 30 },
-      { maxTime: Infinity, title: "🐌 まったりねこ", coins: 10 }
+    const ranks = [ /* ...ランク定義は省略... */
+        { maxTime: 30.0, title: "🚀 光速のネコ", coins: 150 }, { maxTime: 35.0, title: "✨ 神速のネコ", coins: 130 }, { maxTime: 38.0, title: "⚡ とてもはやねこ", coins: 115 }, { maxTime: 41.0, title: "🏃‍♂️ はやねこ", coins: 100 }, { maxTime: 44.0, title: "🐾 ちょいはやねこ", coins: 90 }, { maxTime: 47.0, title: "🐱 がんばりねこ", coins: 80 }, { maxTime: 50.0, title: "😺 ふつうねこ", coins: 70 }, { maxTime: 53.0, title: "😸 ふつうよりちょいのんびりねこ", coins: 55 }, { maxTime: 55.0, title: "🐢 のんびりねこ", coins: 45 }, { maxTime: 70.0, title: "💤 ねむたいねこ", coins: 30 }, { maxTime: Infinity, title: "🐌 まったりねこ", coins: 10 }
     ];
+    function getRank(time) { /* ... 省略 ... */ const numericTime = parseFloat(time); for (const rank of ranks) { if (numericTime <= rank.maxTime) { return rank; } } return ranks[ranks.length - 1]; }
+    rankBtn.addEventListener("click", (e) => { /* ... 省略 ... */ e.preventDefault(); e.stopPropagation(); rankList.style.display = rankList.style.display === "none" ? "block" : "none"; });
+    function toggleRankButton(show) { /* ... 省略 ... */ rankBtn.style.display = show ? "inline-block" : "none"; }
+    function getCoins() { /* ... 省略 ... */ return parseInt(localStorage.getItem("coins") || "0"); }
+    function setCoins(value) { /* ... 省略 ... */ localStorage.setItem("coins", value); coinInfo.textContent = `💰 ねこコイン: ${value}`; }
+    function generateProblems() { /* ... 省略 ... */ problems = []; for (let a = 2; a < 10; a++) { for (let b = 2; b < 10; b++) { problems.push({ q: `${a} × ${b}`, a: a * b }); if ((a * b) % a === 0) { problems.push({ q: `${a * b} ÷ ${a}`, a: b }); } if (a !== b && (a * b) % b === 0) { problems.push({ q: `${a * b} ÷ ${b}`, a: a }); } } } for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; } selected = problems.slice(0, totalQuestions); }
+    function updateTimer() { /* ... 省略 ... */ const now = Date.now(); const elapsed = ((now - startTime) / 1000).toFixed(1); timer.textContent = `タイム: ${elapsed} 秒`; }
 
-    function getRank(time) {
-      const numericTime = parseFloat(time);
-      for (const rank of ranks) {
-        if (numericTime <= rank.maxTime) {
-          return rank;
-        }
-      }
-      return ranks[ranks.length - 1];
-    }
-
-    rankBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      rankList.style.display = rankList.style.display === "none" ? "block" : "none";
-    });
-
-    function toggleRankButton(show) {
-      rankBtn.style.display = show ? "inline-block" : "none";
-    }
-
-    function getCoins() {
-      return parseInt(localStorage.getItem("coins") || "0");
-    }
-
-    function setCoins(value) {
-      localStorage.setItem("coins", value);
-      coinInfo.textContent = `💰 ねこコイン: ${value}`;
-    }
-
-    function generateProblems() {
-      problems = [];
-      for (let a = 2; a < 10; a++) {
-        for (let b = 2; b < 10; b++) {
-          problems.push({ q: `${a} × ${b}`, a: a * b });
-          if ((a * b) % a === 0) {
-             problems.push({ q: `${a * b} ÷ ${a}`, a: b });
-          }
-          if (a !== b && (a * b) % b === 0) {
-             problems.push({ q: `${a * b} ÷ ${b}`, a: a });
-          }
-        }
-      }
-      for (let i = problems.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [problems[i], problems[j]] = [problems[j], problems[i]];
-      }
-      selected = problems.slice(0, totalQuestions);
-    }
-
-    function updateTimer() {
-      const now = Date.now();
-      const elapsed = ((now - startTime) / 1000).toFixed(1);
-      timer.textContent = `タイム: ${elapsed} 秒`;
-    }
-
+    // 次の問題を表示する関数
     function showQuestion() {
       if (index < selected.length) {
         questionNumber.textContent = `(${index + 1}/${totalQuestions})`;
-        question.textContent = selected[index].q;
+
+        // --- ステップ2: アニメーション適用 ---
+        question.textContent = selected[index].q; // テキスト設定
+        // アニメーションクラスを一旦削除し、再追加してアニメーションをトリガー
+        question.classList.remove('animate-reveal');
+        void question.offsetWidth; // リフロー強制
+        question.classList.add('animate-reveal');
+        // --- ここまで ---
+
         showingAnswer = false;
       } else {
         endGame();
       }
     }
 
+    // 現在の問題の答えを表示する関数
     function showAnswer() {
-      question.textContent = selected[index].a;
+      // --- ステップ2: アニメーション適用 ---
+      question.textContent = selected[index].a; // テキスト設定
+      // アニメーションクラスを一旦削除し、再追加してアニメーションをトリガー
+      question.classList.remove('animate-reveal');
+      void question.offsetWidth; // リフロー強制
+      question.classList.add('animate-reveal');
+      // --- ここまで ---
+
       showingAnswer = true;
     }
 
-    function nextStep() {
-      if (!gameStarted) return;
-      if (!showingAnswer) {
-        showAnswer();
-      } else {
-        index++;
-        showQuestion();
-      }
-    }
-
-    function endGame() {
-      toggleRankButton(true);
-      clearInterval(timerInterval);
-      gameStarted = false;
-      homeBtn.style.display = "inline-block";
-      const endTime = Date.now();
-      const elapsed = ((endTime - startTime) / 1000).toFixed(1);
-
-      const resultRank = getRank(elapsed);
-      info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`;
-      titleBadge.textContent = resultRank.title;
-
-      const earned = resultRank.coins;
-      const current = getCoins();
-      setCoins(current + earned);
-
-      setTimeout(() => {
-        alert(`🎉 ${earned} コインを獲得したよ！`);
-      }, 300);
-
-      document.documentElement.style.overflowY = "auto";
-      document.body.style.overflowY = "auto";
-    }
-
-    startBtn.addEventListener("click", () => {
-      document.documentElement.style.overflowY = "hidden";
-      document.body.style.overflowY = "hidden";
-      questionNumber.textContent = "";
-      timer.textContent = "";
-      toggleRankButton(false);
-      rankList.style.display = "none";
-      generateProblems();
-      index = 0;
-      gameStarted = true;
-      startTime = Date.now();
-      startBtn.style.display = "none";
-      homeBtn.style.display = "none";
-      info.textContent = "がんばってね！";
-      titleBadge.textContent = "";
-      question.textContent = ''; // 開始時に前の問題が残らないようにクリア
-      showQuestion();
-      timerInterval = setInterval(updateTimer, 100);
-    });
-
-    homeBtn.addEventListener("click", () => {
-      location.reload();
-    });
-
-    document.body.addEventListener("click", (e) => {
-      let targetElement = e.target;
-      let isButtonOrRankList = false;
-      const ignoreIds = ["startBtn", "rankBtn", "homeBtn", "rankList"];
-
-      while (targetElement != null) {
-          // IDでチェック or rankList自体かその中身か
-          if (ignoreIds.includes(targetElement.id) || targetElement.closest('#rankList')) {
-              isButtonOrRankList = true;
-              break;
-          }
-          targetElement = targetElement.parentElement;
-      }
-
-      if (!isButtonOrRankList && gameStarted) { // ゲーム開始後のみ反応
-        nextStep();
-      }
-    });
-
+    function nextStep() { /* ... 省略 ... */ if (!gameStarted) return; if (!showingAnswer) { showAnswer(); } else { index++; showQuestion(); } }
+    function endGame() { /* ... 省略 ... */ toggleRankButton(true); clearInterval(timerInterval); gameStarted = false; homeBtn.style.display = "inline-block"; const endTime = Date.now(); const elapsed = ((endTime - startTime) / 1000).toFixed(1); const resultRank = getRank(elapsed); info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`; titleBadge.textContent = resultRank.title; const earned = resultRank.coins; const current = getCoins(); setCoins(current + earned); setTimeout(() => { alert(`🎉 ${earned} コインを獲得したよ！`); }, 300); document.documentElement.style.overflowY = "auto"; document.body.style.overflowY = "auto"; }
+    startBtn.addEventListener("click", () => { /* ... 省略 ... */ document.documentElement.style.overflowY = "hidden"; document.body.style.overflowY = "hidden"; questionNumber.textContent = ""; timer.textContent = ""; toggleRankButton(false); rankList.style.display = "none"; generateProblems(); index = 0; gameStarted = true; startTime = Date.now(); startBtn.style.display = "none"; homeBtn.style.display = "none"; info.textContent = "がんばってね！"; titleBadge.textContent = ""; question.textContent = ''; showQuestion(); timerInterval = setInterval(updateTimer, 100); });
+    homeBtn.addEventListener("click", () => { /* ... 省略 ... */ location.reload(); });
+    document.body.addEventListener("click", (e) => { /* ... 省略 ... */ let targetElement = e.target; let isButtonOrRankList = false; const ignoreIds = ["startBtn", "rankBtn", "homeBtn", "rankList"]; while (targetElement != null) { if (ignoreIds.includes(targetElement.id) || targetElement.closest('#rankList')) { isButtonOrRankList = true; break; } targetElement = targetElement.parentElement; } if (!isButtonOrRankList && gameStarted) { nextStep(); } });
     setCoins(getCoins());
-
-    window.addEventListener('resize', () => {
-      // 必要であればリサイズ時の処理
-    });
+    window.addEventListener('resize', () => { /* ... 省略 ... */ });
   </script>
 </body>
 </html>
