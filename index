@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ねこスピードチャレンジ</title>
+  <style>
+    body {
+      font-family: "Courier New", monospace;
+      text-align: center;
+      background-color: #fffaf0;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2em;
+    }
+    #question {
+      font-size: 2.5em;
+      margin: 20px 0 10px 0;
+    }
+    #questionNumber, #timer, #titleBadge, #coinInfo {
+      font-size: 1em;
+      color: #555;
+      margin: 5px 0;
+    }
+    #info {
+      font-size: 1.2em;
+      color: #666;
+    }
+    #startBtn, #nextBtn, #homeBtn {
+      font-size: 1.2em;
+      padding: 10px 30px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      background-color: #ffb6c1;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body id="body">
+  <h1>ねこスピードチャレンジ</h1>
+  <div id="coinInfo">💰 ねこコイン: 0</div>
+  <div id="info">スタートボタンを押してね</div>
+  <div id="questionNumber"></div>
+  <div id="timer"></div>
+  <div id="question">=^･ω･^=</div>
+  <div id="titleBadge"></div>
+  <button id="startBtn">スタート</button>
+  <button id="nextBtn" style="display: none;">つぎへ</button>
+  <button id="homeBtn" style="display: none;">ホームにもどる</button>
+
+  <script>
+    const totalQuestions = 30;
+    let problems = [];
+    let selected = [];
+    let index = 0;
+    let showingAnswer = false;
+    let startTime = null;
+    let gameStarted = false;
+    let timerInterval;
+
+    const question = document.getElementById("question");
+    const questionNumber = document.getElementById("questionNumber");
+    const timer = document.getElementById("timer");
+    const info = document.getElementById("info");
+    const titleBadge = document.getElementById("titleBadge");
+    const startBtn = document.getElementById("startBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const homeBtn = document.getElementById("homeBtn");
+    const coinInfo = document.getElementById("coinInfo");
+
+    function getCoins() {
+      return parseInt(localStorage.getItem("coins") || "0");
+    }
+
+    function setCoins(value) {
+      localStorage.setItem("coins", value);
+      coinInfo.textContent = `💰 ねこコイン: ${value}`;
+    }
+
+    function generateProblems() {
+      problems = [];
+      for (let a = 2; a < 10; a++) {
+        for (let b = 2; b < 10; b++) {
+          problems.push({ q: `${a} × ${b}`, a: a * b });
+          problems.push({ q: `${a * b} ÷ ${a}`, a: b });
+        }
+      }
+      problems.sort(() => Math.random() - 0.5);
+      selected = problems.slice(0, totalQuestions);
+    }
+
+    function updateTimer() {
+      const now = Date.now();
+      const elapsed = ((now - startTime) / 1000).toFixed(1);
+      timer.textContent = `タイム: ${elapsed} 秒`;
+    }
+
+    function showQuestion() {
+      if (index < selected.length) {
+        questionNumber.textContent = `(${index + 1}/${totalQuestions})`;
+        question.textContent = selected[index].q;
+        showingAnswer = false;
+      } else {
+        endGame();
+      }
+    }
+
+    function showAnswer() {
+      question.textContent = selected[index].a;
+      showingAnswer = true;
+    }
+
+    function nextStep() {
+      if (!gameStarted) return;
+      if (!showingAnswer) {
+        showAnswer();
+      } else {
+        index++;
+        showQuestion();
+      }
+    }
+
+    function assignTitle(time) {
+      if (time <= 40) return "✨ 神速のネコ ✨";
+      if (time <= 60) return "🏃‍♂️ はやねこ";
+      if (time <= 90) return "😺 なかなかニャ";
+      return "🐢 おちつきねこ";
+    }
+
+    function calculateCoins(time) {
+      if (time <= 40) return 100;
+      if (time <= 60) return 80;
+      if (time <= 90) return 60;
+      return 30;
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+      gameStarted = false;
+      nextBtn.style.display = "none";
+      homeBtn.style.display = "inline-block";
+      const endTime = Date.now();
+      const elapsed = ((endTime - startTime) / 1000).toFixed(1);
+      info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`;
+      titleBadge.textContent = assignTitle(elapsed);
+
+      const earned = calculateCoins(elapsed);
+      const current = getCoins();
+      setCoins(current + earned);
+
+      setTimeout(() => {
+        alert(`🎉 ${earned} コインを獲得したよ！`);
+      }, 300);
+    }
+
+    startBtn.addEventListener("click", () => {
+      generateProblems();
+      index = 0;
+      gameStarted = true;
+      startTime = Date.now();
+      startBtn.style.display = "none";
+      nextBtn.style.display = "inline-block";
+      homeBtn.style.display = "none";
+      info.textContent = "がんばってね！";
+      titleBadge.textContent = "";
+      showQuestion();
+      timerInterval = setInterval(updateTimer, 100);
+    });
+
+    nextBtn.addEventListener("click", nextStep);
+    homeBtn.addEventListener("click", () => location.reload());
+    document.body.addEventListener("click", (e) => {
+      if (![startBtn, nextBtn, homeBtn].includes(e.target)) {
+        nextStep();
+      }
+    });
+
+    setCoins(getCoins());
+  </script>
+</body>
+</html>
