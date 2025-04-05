@@ -5,13 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ねこスピードチャレンジ</title>
   <style>
+    /* bodyタグにスタイルを統合 */
     body {
       font-family: "Courier New", monospace;
       text-align: center;
       background-color: #fffaf0;
       margin: 0;
       padding: 10px;
-      overflow-x: hidden;
+      overflow-x: hidden; /* 横スクロール禁止 */
+      display: flex; /* #bodyから移動 */
+      flex-direction: column; /* #bodyから移動 */
+      justify-content: flex-start; /* #bodyから移動 */
+      align-items: center; /* #bodyから移動 */
+      min-height: 100vh; /* #bodyから移動 */
+      overflow-y: auto; /* #bodyから移動 (初期値) */
+      padding-bottom: 20px; /* #bodyから移動 */
+      height: 100%; /* html, bodyセレクタから移動 */
+    }
+    /* htmlタグのスタイル */
+    html {
+      height: 100%;
     }
     h1 {
       font-size: 2em;
@@ -35,22 +48,15 @@
       margin: 10px;
       border: none;
       border-radius: 10px;
-      background-color: #ffb6c1;
+      background-color: #ffb6c1; /* Light Pink */
       color: white;
       cursor: pointer;
+      transition: background-color 0.2s; /* ホバー効果用 */
     }
-    html, body {
-      height: 100%;
+    #startBtn:hover, #homeBtn:hover, #rankBtn:hover {
+        background-color: #ff9aaa; /* 少し濃いピンク */
     }
-    #body {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      min-height: 100vh;
-      overflow-y: auto;
-      padding-bottom: 20px;
-    }
+
     #rankList {
       display: none;
       margin-top: 20px;
@@ -60,13 +66,58 @@
       text-align: left;
       font-size: 1em;
       max-width: 500px;
+      width: 85%; /* 画面幅に応じて調整 */
       margin-left: auto;
       margin-right: auto;
       color: #333;
+      border: 1px solid #eee; /* 境界線を少しつける */
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* 影をつける */
     }
+    #rankList h2 {
+        text-align: center; /* 中央揃え */
+        margin-top: 0;
+        color: #ff6347; /* Tomato */
+    }
+    #rankList ul {
+        list-style: none;
+        padding: 0;
+    }
+    #rankList li {
+        margin-bottom: 8px; /* 各項目の間隔 */
+        padding-bottom: 8px; /* 下線との間隔 */
+        border-bottom: 1px dashed #eee; /* 区切り線 */
+    }
+    #rankList li:last-child {
+        border-bottom: none; /* 最後の項目は線なし */
+    }
+
+    /* 結果表示用のハイライトスタイル */
+    .highlight {
+      color: #ff6347; /* Tomato色 */
+      font-weight: bold;
+    }
+
+    /* レスポンシブ対応（小さい画面向け） */
+    @media (max-width: 600px) {
+        h1 {
+            font-size: 1.8em;
+        }
+        #question {
+            font-size: 3em;
+            margin: 30px 0 15px 0;
+        }
+        #startBtn, #homeBtn, #rankBtn {
+            font-size: 1em;
+            padding: 12px 25px; /* 少し縦長に */
+        }
+        #rankList {
+            width: 90%;
+        }
+    }
+
   </style>
 </head>
-<body id="body">
+<body>
   <h1>ねこスピードチャレンジ</h1>
   <div id="coinInfo">💰 ねこコイン: 0</div>
   <div id="info">スタートボタンを押してね</div>
@@ -76,24 +127,23 @@
   <div id="titleBadge"></div>
   <div id="rankList">
     <h2>🏅 称号と報酬一覧</h2>
-    <ul style="list-style: none; padding: 0;">
-      <li>🚀 光速のネコ：150コイン（～30秒）</li>
-      <li>✨ 神速のネコ：130コイン（～35秒）</li>
-      <li>⚡ とてもはやねこ：115コイン（～38秒）</li>
-      <li>🏃‍♂️ はやねこ：100コイン（～41秒）</li>
-      <li>🐾 ちょいはやねこ：90コイン（～44秒）</li>
-      <li>🐱 がんばりねこ：80コイン（～47秒）</li>
-      <li>😺 ふつうねこ：70コイン（～50秒）</li>
-      <li>😸 ふつうよりちょいのんびりねこ：55コイン（～53秒）</li>
-      <li>🐢 のんびりねこ：45コイン（～55秒）</li>
-      <li>💤 ねむたいねこ：30コイン（～70秒）</li>
-      <li>🐌 まったりねこ：10コイン（71秒以上）</li>
+    <ul>
+        <li>🚀 光速のネコ：150コイン（～30.0秒）</li>
+        <li>✨ 神速のネコ：130コイン（～35.0秒）</li>
+        <li>⚡ とてもはやねこ：115コイン（～38.0秒）</li>
+        <li>🏃‍♂️ はやねこ：100コイン（～41.0秒）</li>
+        <li>🐾 ちょいはやねこ：90コイン（～44.0秒）</li>
+        <li>🐱 がんばりねこ：80コイン（～47.0秒）</li>
+        <li>😺 ふつうねこ：70コイン（～50.0秒）</li>
+        <li>😸 ふつうよりちょいのんびりねこ：55コイン（～53.0秒）</li>
+        <li>🐢 のんびりねこ：45コイン（～55.0秒）</li>
+        <li>💤 ねむたいねこ：30コイン（～70.0秒）</li>
+        <li>🐌 まったりねこ：10コイン（70.1秒～）</li>
     </ul>
   </div>
   <button id="startBtn">スタート</button>
   <button id="homeBtn" style="display: none;">ホームにもどる</button>
   <button id="rankBtn" style="display: inline-block;">称号一覧</button>
-
 
   <script>
     const totalQuestions = 30;
@@ -105,6 +155,7 @@
     let gameStarted = false;
     let timerInterval;
 
+    // DOM要素取得
     const question = document.getElementById("question");
     const questionNumber = document.getElementById("questionNumber");
     const timer = document.getElementById("timer");
@@ -116,148 +167,212 @@
     const rankBtn = document.getElementById("rankBtn");
     const rankList = document.getElementById("rankList");
 
+    // --- 称号とコインの定義 ---
+    const ranks = [
+      { maxTime: 30.0, title: "🚀 光速のネコ", coins: 150 },
+      { maxTime: 35.0, title: "✨ 神速のネコ", coins: 130 },
+      { maxTime: 38.0, title: "⚡ とてもはやねこ", coins: 115 },
+      { maxTime: 41.0, title: "🏃‍♂️ はやねこ", coins: 100 },
+      { maxTime: 44.0, title: "🐾 ちょいはやねこ", coins: 90 },
+      { maxTime: 47.0, title: "🐱 がんばりねこ", coins: 80 },
+      { maxTime: 50.0, title: "😺 ふつうねこ", coins: 70 },
+      { maxTime: 53.0, title: "😸 ふつうよりちょいのんびりねこ", coins: 55 },
+      { maxTime: 55.0, title: "🐢 のんびりねこ", coins: 45 },
+      { maxTime: 70.0, title: "💤 ねむたいねこ", coins: 30 },
+      { maxTime: Infinity, title: "🐌 まったりねこ", coins: 10 } // 最後のエントリー
+    ];
+
+    // 時間に応じたランク情報（称号とコイン）を取得する関数
+    function getRank(time) {
+      const numericTime = parseFloat(time); // 比較のために数値に変換
+      for (const rank of ranks) {
+        if (numericTime <= rank.maxTime) {
+          return rank;
+        }
+      }
+      // 通常はInfinityでキャッチされるが、念のため最後を返す
+      return ranks[ranks.length - 1];
+    }
+
+    // 称号一覧ボタンのイベントリスナー
     rankBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopImmediatePropagation();
+      e.preventDefault(); // ボタンのデフォルト動作を防ぐ
+      e.stopPropagation(); // イベントの伝播を停止（bodyへのクリックと区別）
       rankList.style.display = rankList.style.display === "none" ? "block" : "none";
     });
 
+    // 称号一覧ボタンの表示/非表示を切り替える関数
     function toggleRankButton(show) {
       rankBtn.style.display = show ? "inline-block" : "none";
     }
 
+    // ローカルストレージからコインを取得する関数
     function getCoins() {
       return parseInt(localStorage.getItem("coins") || "0");
     }
 
+    // コインをローカルストレージに保存し、表示を更新する関数
     function setCoins(value) {
       localStorage.setItem("coins", value);
       coinInfo.textContent = `💰 ねこコイン: ${value}`;
     }
 
+    // 問題を生成しシャッフルする関数
     function generateProblems() {
       problems = [];
+      // 九九 (2x2 から 9x9)
       for (let a = 2; a < 10; a++) {
         for (let b = 2; b < 10; b++) {
           problems.push({ q: `${a} × ${b}`, a: a * b });
-          problems.push({ q: `${a * b} ÷ ${a}`, a: b });
+          // 対応する割り算 (例: 6x3=18 なら 18÷6=3)
+          // a*bがaで割り切れるのは自明だが、一応形式的に記述
+          if ((a * b) % a === 0) {
+             problems.push({ q: `${a * b} ÷ ${a}`, a: b });
+          }
+          // bで割る問題も追加 (a=b の場合を除く)
+          if (a !== b && (a * b) % b === 0) {
+             problems.push({ q: `${a * b} ÷ ${b}`, a: a });
+          }
         }
       }
-      problems.sort(() => Math.random() - 0.5);
+
+      // Fisher-Yates (Knuth) Shuffle アルゴリズムで問題をシャッフル
+      for (let i = problems.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [problems[i], problems[j]] = [problems[j], problems[i]]; // 要素を入れ替え
+      }
+      // シャッフルされた問題から指定数だけ選択
       selected = problems.slice(0, totalQuestions);
     }
 
+    // タイマー表示を更新する関数
     function updateTimer() {
       const now = Date.now();
-      const elapsed = ((now - startTime) / 1000).toFixed(1);
+      const elapsed = ((now - startTime) / 1000).toFixed(1); // 秒単位、小数点以下1桁
       timer.textContent = `タイム: ${elapsed} 秒`;
     }
 
+    // 次の問題を表示する関数
     function showQuestion() {
       if (index < selected.length) {
-        questionNumber.textContent = `(${index + 1}/${totalQuestions})`;
-        question.textContent = selected[index].q;
-        showingAnswer = false;
+        questionNumber.textContent = `(${index + 1}/${totalQuestions})`; // 問題番号表示
+        question.textContent = selected[index].q; // 問題文表示
+        showingAnswer = false; // 回答表示フラグをリセット
       } else {
-        endGame();
+        endGame(); // 全ての問題が終わったらゲーム終了
       }
     }
 
+    // 現在の問題の答えを表示する関数
     function showAnswer() {
-      question.textContent = selected[index].a;
-      showingAnswer = true;
+      question.textContent = selected[index].a; // 回答表示
+      showingAnswer = true; // 回答表示フラグをセット
     }
 
+    // クリック/タップで次のステップに進む関数 (回答表示/次の問題)
     function nextStep() {
-      if (!gameStarted) return;
+      if (!gameStarted) return; // ゲームが開始されていなければ何もしない
+
       if (!showingAnswer) {
-        showAnswer();
+        showAnswer(); // 問題表示中なら回答を表示
       } else {
-        index++;
-        showQuestion();
+        index++; // 回答表示中ならインデックスを進めて
+        showQuestion(); // 次の問題を表示
       }
     }
 
-    function assignTitle(time) {
-      if (time <= 30) return "🚀 光速のネコ";
-      if (time <= 35) return "✨ 神速のネコ";
-      if (time <= 38) return "⚡ とてもはやねこ";
-      if (time <= 41) return "🏃‍♂️ はやねこ";
-      if (time <= 44) return "🐾 ちょいはやねこ";
-      if (time <= 47) return "🐱 がんばりねこ";
-      if (time <= 50) return "😺 ふつうねこ";
-      if (time <= 53) return "😸 ふつうよりちょいのんびりねこ";
-      if (time <= 55) return "🐢 のんびりねこ";
-      if (time <= 70) return "💤 ねむたいねこ";
-      return "🐌 まったりねこ";
-    }
-
-    function calculateCoins(time) {
-      if (time <= 30) return 150;
-      if (time <= 35) return 130;
-      if (time <= 38) return 115;
-      if (time <= 41) return 100;
-      if (time <= 44) return 90;
-      if (time <= 47) return 80;
-      if (time <= 50) return 70;
-      if (time <= 53) return 55;
-      if (time <= 55) return 45;
-      if (time <= 70) return 30;
-      return 10;
-    }
-
+    // ゲーム終了時の処理を行う関数
     function endGame() {
-      toggleRankButton(true);
-      clearInterval(timerInterval);
-      gameStarted = false;
-      homeBtn.style.display = "inline-block";
+      toggleRankButton(true); // 称号一覧ボタンを表示
+      clearInterval(timerInterval); // タイマー停止
+      gameStarted = false; // ゲーム終了フラグをセット
+      homeBtn.style.display = "inline-block"; // ホームボタンを表示
       const endTime = Date.now();
-      const elapsed = ((endTime - startTime) / 1000).toFixed(1);
-      info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`;
-      titleBadge.textContent = assignTitle(elapsed);
+      const elapsed = ((endTime - startTime) / 1000).toFixed(1); // 経過時間を計算
 
-      const earned = calculateCoins(elapsed);
-      const current = getCoins();
-      setCoins(current + earned);
+      const resultRank = getRank(elapsed); // タイムからランク情報を取得
+      info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`; // 結果表示
+      titleBadge.textContent = resultRank.title; // 称号表示
 
+      const earned = resultRank.coins; // 獲得コイン数を取得
+      const current = getCoins(); // 現在のコイン数を取得
+      setCoins(current + earned); // コインを加算して保存・表示
+
+      // 結果アラートを少し遅れて表示
       setTimeout(() => {
         alert(`🎉 ${earned} コインを獲得したよ！`);
       }, 300);
-    }
 
-    startBtn.addEventListener("click", () => {
-      document.documentElement.style.overflowY = "hidden";
-      document.body.style.overflowY = "hidden";
-      questionNumber.textContent = "";
-      timer.textContent = "";
-      document.body.style.overflowY = "hidden";
-      toggleRankButton(false);
-      generateProblems();
-      index = 0;
-      gameStarted = true;
-      startTime = Date.now();
-      startBtn.style.display = "none";
-      homeBtn.style.display = "none";
-      info.textContent = "がんばってね！";
-      titleBadge.textContent = "";
-      showQuestion();
-      timerInterval = setInterval(updateTimer, 100);
-    });
-
-    homeBtn.addEventListener("click", () => {
+      // スクロールを再度有効にする
       document.documentElement.style.overflowY = "auto";
       document.body.style.overflowY = "auto";
-      document.body.style.overflowY = "auto";
+    }
+
+    // スタートボタンのイベントリスナー
+    startBtn.addEventListener("click", () => {
+      // ゲーム中のスクロールを禁止
+      document.documentElement.style.overflowY = "hidden";
+      document.body.style.overflowY = "hidden";
+
+      // UI初期化
+      questionNumber.textContent = "";
+      timer.textContent = "";
+      toggleRankButton(false); // 称号一覧ボタンを隠す
+      rankList.style.display = "none"; // 称号一覧リストも隠す
+      generateProblems(); // 問題生成
+      index = 0; // 問題インデックスリセット
+      gameStarted = true; // ゲーム開始フラグ
+      startTime = Date.now(); // 開始時間記録
+      startBtn.style.display = "none"; // スタートボタン非表示
+      homeBtn.style.display = "none"; // ホームボタン非表示
+      info.textContent = "がんばってね！"; // メッセージ変更
+      titleBadge.textContent = ""; // 称号リセット
+      showQuestion(); // 最初の問題表示
+      timerInterval = setInterval(updateTimer, 100); // タイマースタート (100ms毎更新)
+    });
+
+    // ホームボタンのイベントリスナー
+    homeBtn.addEventListener("click", () => {
+      // ページを再読み込みしてゲームをリセット
       location.reload();
     });
+
+    // body要素へのクリック（タップ）イベントリスナー (ゲーム進行用)
     document.body.addEventListener("click", (e) => {
-      const ignore = ["startBtn", "rankBtn", "homeBtn"];
-      if (!ignore.includes(e.target.id)) {
+      // クリックされた要素がボタン（またはその中身）かどうかをチェック
+      let targetElement = e.target;
+      let isButton = false;
+      const buttonIds = ["startBtn", "rankBtn", "homeBtn"];
+
+      while (targetElement != null) {
+          if (buttonIds.includes(targetElement.id)) {
+              isButton = true;
+              break; // ボタンが見つかったらループ終了
+          }
+          // 称号一覧(rankList)の中をクリックした場合も無視する
+          if (targetElement.id === "rankList") {
+              isButton = true; // ボタンではないが、無視する対象として扱う
+              break;
+          }
+          targetElement = targetElement.parentElement; // 親要素をたどる
+      }
+
+      // ボタンまたは称号一覧以外の場所がクリックされたらゲームを進める
+      if (!isButton) {
         nextStep();
       }
     });
 
+    // 初期コイン表示読み込み
     setCoins(getCoins());
+
+    // --- おまけ: 画面サイズ変更時に称号リストがはみ出さないように調整 ---
+    // (必須ではないですが、レスポンシブ対応を少し強化)
+    window.addEventListener('resize', () => {
+        // 必要であれば、ここで要素のスタイルを調整するロジックを追加できます
+        // 例: rankListの高さを調整するなど
+    });
+
   </script>
 </body>
 </html>
