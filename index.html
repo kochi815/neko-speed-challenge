@@ -10,7 +10,8 @@
       text-align: center;
       background-color: #fffaf0;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
+      overflow: hidden;
     }
     h1 {
       font-size: 2em;
@@ -44,8 +45,10 @@
     #body {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
+      align-items: center;
       min-height: 100vh;
+      overflow: hidden;
     }
     #rankList {
       display: none;
@@ -86,8 +89,8 @@
       <li>🐌 まったりねこ：10コイン（71秒以上）</li>
     </ul>
   </div>
-  <button id="rankBtn">称号一覧</button>
   <button id="startBtn">スタート</button>
+  <button id="rankBtn">称号一覧</button>
   <button id="homeBtn" style="display: none;">ホームにもどる</button>
 
   <script>
@@ -114,6 +117,10 @@
     rankBtn.addEventListener("click", () => {
       rankList.style.display = rankList.style.display === "none" ? "block" : "none";
     });
+
+    function toggleRankButton(show) {
+      rankBtn.style.display = show ? "inline-block" : "none";
+    }
 
     function getCoins() {
       return parseInt(localStorage.getItem("coins") || "0");
@@ -196,6 +203,7 @@
     }
 
     function endGame() {
+      toggleRankButton(true);
       clearInterval(timerInterval);
       gameStarted = false;
       homeBtn.style.display = "inline-block";
@@ -214,6 +222,7 @@
     }
 
     startBtn.addEventListener("click", () => {
+      toggleRankButton(false);
       generateProblems();
       index = 0;
       gameStarted = true;
