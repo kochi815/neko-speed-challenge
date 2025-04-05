@@ -16,8 +16,8 @@
       font-size: 2em;
     }
     #question {
-      font-size: 2.5em;
-      margin: 20px 0 10px 0;
+      font-size: 4em;
+      margin: 40px 0 20px 0;
     }
     #questionNumber, #timer, #titleBadge, #coinInfo {
       font-size: 1em;
@@ -49,13 +49,14 @@
   <div id="question">=^･ω･^=</div>
   <div id="titleBadge"></div>
   <button id="startBtn">スタート</button>
-  <button id="nextBtn" style="display: none;">つぎへ</button>
+  <!-- <button id="nextBtn" style="display: none;">つぎへ</button> -->
   <button id="homeBtn" style="display: none;">ホームにもどる</button>
 
   <script>
     const totalQuestions = 30;
     let problems = [];
     let selected = [];
+    // let results = []; // 正誤チェック不要になったため削除
     let index = 0;
     let showingAnswer = false;
     let startTime = null;
@@ -110,8 +111,11 @@
     }
 
     function showAnswer() {
-      question.textContent = selected[index].a;
+      const current = selected[index];
+      question.textContent = `${current.q} = ${current.a}`;
       showingAnswer = true;
+      // 正誤記録不要のため記録処理を削除
+    
     }
 
     function nextStep() {
@@ -139,6 +143,7 @@
     }
 
     function endGame() {
+      // 正誤記録不要のためログ出力を削除
       clearInterval(timerInterval);
       gameStarted = false;
       nextBtn.style.display = "none";
@@ -171,10 +176,10 @@
       timerInterval = setInterval(updateTimer, 100);
     });
 
-    nextBtn.addEventListener("click", nextStep);
+    // nextBtn removed: click anywhere on screen to proceed
     homeBtn.addEventListener("click", () => location.reload());
     document.body.addEventListener("click", (e) => {
-      if (![startBtn, nextBtn, homeBtn].includes(e.target)) {
+      if (!e.target.closest('button')) {
         nextStep();
       }
     });
