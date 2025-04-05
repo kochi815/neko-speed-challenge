@@ -28,7 +28,7 @@
       font-size: 1.2em;
       color: #666;
     }
-    #startBtn, #nextBtn, #homeBtn {
+    #startBtn, #homeBtn {
       font-size: 1.2em;
       padding: 10px 30px;
       margin: 10px;
@@ -49,14 +49,12 @@
   <div id="question">=^･ω･^=</div>
   <div id="titleBadge"></div>
   <button id="startBtn">スタート</button>
-  <!-- <button id="nextBtn" style="display: none;">つぎへ</button> -->
   <button id="homeBtn" style="display: none;">ホームにもどる</button>
 
   <script>
     const totalQuestions = 30;
     let problems = [];
     let selected = [];
-    // let results = []; // 正誤チェック不要になったため削除
     let index = 0;
     let showingAnswer = false;
     let startTime = null;
@@ -69,7 +67,6 @@
     const info = document.getElementById("info");
     const titleBadge = document.getElementById("titleBadge");
     const startBtn = document.getElementById("startBtn");
-    const nextBtn = document.getElementById("nextBtn");
     const homeBtn = document.getElementById("homeBtn");
     const coinInfo = document.getElementById("coinInfo");
 
@@ -111,11 +108,8 @@
     }
 
     function showAnswer() {
-      const current = selected[index];
-      question.textContent = `${current.q} = ${current.a}`;
+      question.textContent = selected[index].a;
       showingAnswer = true;
-      // 正誤記録不要のため記録処理を削除
-    
     }
 
     function nextStep() {
@@ -129,24 +123,34 @@
     }
 
     function assignTitle(time) {
-      if (time <= 40) return "✨ 神速のネコ ✨";
-      if (time <= 60) return "🏃‍♂️ はやねこ";
-      if (time <= 90) return "😺 なかなかニャ";
-      return "🐢 おちつきねこ";
+      if (time <= 34) return "👑 ねこプリンセス★MAX";
+      if (time <= 37) return "✨ きらきらねこマスター";
+      if (time <= 40) return "🎀 ひらめきねこ";
+      if (time <= 43) return "💡 かしこいねこ";
+      if (time <= 46) return "💪 がんばりねこ";
+      if (time <= 49) return "🐾 れんしゅうねこ";
+      if (time <= 54) return "🍀 ふつうねこ";
+      if (time <= 59) return "🐢 ちょっとねむいねこ";
+      if (time <= 69) return "💤 おひるねねこ";
+      return "🐌 まったりねこ";
     }
 
     function calculateCoins(time) {
-      if (time <= 40) return 100;
-      if (time <= 60) return 80;
-      if (time <= 90) return 60;
-      return 30;
+      if (time <= 34) return 150;
+      if (time <= 37) return 130;
+      if (time <= 40) return 110;
+      if (time <= 43) return 90;
+      if (time <= 46) return 70;
+      if (time <= 49) return 60;
+      if (time <= 54) return 40;
+      if (time <= 59) return 30;
+      if (time <= 69) return 20;
+      return 10;
     }
 
     function endGame() {
-      // 正誤記録不要のためログ出力を削除
       clearInterval(timerInterval);
       gameStarted = false;
-      nextBtn.style.display = "none";
       homeBtn.style.display = "inline-block";
       const endTime = Date.now();
       const elapsed = ((endTime - startTime) / 1000).toFixed(1);
@@ -168,7 +172,6 @@
       gameStarted = true;
       startTime = Date.now();
       startBtn.style.display = "none";
-      nextBtn.style.display = "inline-block";
       homeBtn.style.display = "none";
       info.textContent = "がんばってね！";
       titleBadge.textContent = "";
@@ -176,7 +179,6 @@
       timerInterval = setInterval(updateTimer, 100);
     });
 
-    // nextBtn removed: click anywhere on screen to proceed
     homeBtn.addEventListener("click", () => location.reload());
     document.body.addEventListener("click", (e) => {
       if (!e.target.closest('button')) {
