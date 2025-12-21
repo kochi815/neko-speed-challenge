@@ -95,74 +95,187 @@ function getBestScoreKey(type) { return `${BEST_SCORE_KEY_PREFIX}${type}`; }
 function saveBestScore(type, score) { const key = getBestScoreKey(type); const currentBest = loadBestScore(type); if (score > currentBest) { localStorage.setItem(key, score.toString()); return true; } return false; }
 function loadBestScore(type) { const key = getBestScoreKey(type); const savedScore = localStorage.getItem(key); return savedScore ? parseInt(savedScore, 10) : 0; }
 
-// --- ★難易度調整: 計測データに基づくタイム設定 ---
+// --- ★難易度調整: 目標タイム設定 (Strict版) ---
 function getProblemTimeLimit(mode, type, qText) {
-    let limits = [1.5, 2.5, 4.0, 7.0]; 
+    // 戻り値: [Critical, Perfect, Great(合格ライン), Good(失敗ライン)] (秒)
+    // Greatの時間を超えると「Good」判定となり、ダメージが半減してクリアが困難になる。
+    
+    // 基本設定
+    let targetTime = 5.0; 
+    let holeBonus = 0.5; // 穴あきは一律 +0.5秒
 
     if (mode === 'grade1') {
-        if (type === '+' || type === '-') {
-            const isTwoDigit = /[1-9][0-9]/.test(qText); 
-            if (isTwoDigit) {
-                limits = [1.5, 2.5, 3.25, 6.0];
-            } else {
-                limits = [0.8, 1.2, 1.6, 2.0];
-            }
+        // --- 1年生モード ---
+        // 「ふつう(2桁)」判定: 問題文に10以上の数字が含まれるか
+        const isHardProblem = /[1-9][0-9]/.test(qText); 
+        
+        if (isHardProblem) {
+            // ★ふつう計算（目標: 7.1秒）
+            targetTime = 7.1;
+        } else {
+            // ★かんたん計算（目標: 1.9秒）
+            targetTime = 1.9;
         }
     }
     else if (mode === 'grade4') {
+        // --- 4年生モード ---
         if (type === '+' || type === '-') {
-            limits = [1.5, 2.0, 2.5, 3.35];
+            // ★ふつう計算・2桁（目標: 2.5秒）
+            targetTime = 2.5;
         } else if (type === '×') {
-            limits = [0.8, 1.2, 1.56, 2.2];
+            // ★かけ算（目標: 1.6秒）
+            targetTime = 1.6;
         } else if (type === '÷') {
-            limits = [0.8, 1.1, 1.35, 1.6];
+            // ★わり算（目標: 1.4秒）
+            targetTime = 1.4;
         }
+    } 
+    else {
+        // トレーニングモード等のデフォルト
+         if (type === '+' || type === '-') {
+             targetTime = /[1-9][0-9]/.test(qText) ? 4.0 : 2.0;
+         } else {
+             targetTime = 2.0;
+         }
     }
-    if (qText.includes('□')) return limits.map(t => t + 1.5);
-    return limits;
+    
+    // 穴あきの場合、目標タイムを緩和
+    if (qText.includes('□')) {
+        targetTime += holeBonus;
+    }
+
+    // 判定基準を作成
+    // Critical: 目標の50%
+    // Perfect: 目標の75%
+    // Great: 目標タイムジャスト (ここまでが合格)
+    // Good: それ以降 (失敗扱い)
+    return [
+        targetTime * 0.5, 
+        targetTime * 0.75, 
+        targetTime, 
+        999 // Goodの上限は実質無限（遅くてもGood扱い）
+    ];
 }
 
-// --- 問題生成 (通常バトル用) ---
+// --- 問題生成 (レベル別カリキュラム) ---
 function generateProblems(stage, mode, count) {
     const generatedProblems = [];
     let num1, num2;
-    function createProblem(op, n1, n2, ans, holePos = 0) {
-        if (holePos === 0) return { q: `${n1} ${op} ${n2}`, a: ans, type: op };
-        if (holePos === 1) return { q: `□ ${op} ${n2} = ${ans}`, a: n1, type: op };
-        return { q: `${n1} ${op} □ = ${ans}`, a: n2, type: op };
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    
+    // 作成ヘルパー
+    function createProblem(op, n1, n2, ans) { return { q: `${n1} ${op} ${n2}`, a: ans, type: op }; }
+    function createHole(n1, opStr, n2, ans) {
+        return Math.random() < 0.5
+          ? { q: `□ ${opStr} ${n2} = ${ans}`, a: n1, type: opStr }
+          : { q: `${n1} ${opStr} □ = ${ans}`, a: n2, type: opStr };
     }
+    
+    // 問題タイプ生成ロジック
     for (let i = 0; i < count; i++) {
         try {
+            let pType = '';
+            
             if (mode === 'grade1') {
+                // === 1年生 カリキュラム ===
                 if (stage <= 10) {
-                    if (Math.random() < 0.6) { num1=Math.floor(Math.random()*11); num2=Math.floor(Math.random()*(11-num1)); generatedProblems.push(createProblem('+',num1,num2,num1+num2)); }
-                    // ★修正: 答えが0にならないように、かつ簡単な引き算
-                    else { 
-                        num1 = Math.floor(Math.random() * 9) + 2; 
-                        num2 = Math.floor(Math.random() * (num1 - 1)) + 1; 
-                        generatedProblems.push(createProblem('-',num1,num2,num1-num2)); 
-                    }
+                    // Lv1-10: かんたん計算のみ (基礎スピード)
+                    pType = 'easy_calc';
                 } else if (stage <= 20) {
-                    if (Math.random() < 0.5) { num1=Math.floor(Math.random()*9)+2; num2=Math.floor(Math.random()*9)+2; generatedProblems.push(createProblem('+',num1,num2,num1+num2)); }
-                    else { num1=Math.floor(Math.random()*11)+10; num2=Math.floor(Math.random()*9)+1; generatedProblems.push(createProblem('-',num1,num2,num1-num2)); }
+                    // Lv11-20: かんたん計算 + かんたん穴あき (構造理解)
+                    pType = Math.random() < 0.5 ? 'easy_calc' : 'easy_hole';
                 } else if (stage <= 30) {
-                    if (Math.random() < 0.5) { num1=Math.floor(Math.random()*20)+1; num2=Math.floor(Math.random()*20)+1; generatedProblems.push(createProblem('+',num1,num2,num1+num2)); }
-                    else { num1=Math.floor(Math.random()*30)+10; num2=Math.floor(Math.random()*10)+1; generatedProblems.push(createProblem('-',num1,num2,num1-num2)); }
-                } else {
-                    const hole = Math.random() < 0.5 ? 1 : 2;
-                    num1=Math.floor(Math.random()*15)+5; num2=Math.floor(Math.random()*10); generatedProblems.push(createProblem('+',num1,num2,num1+num2,hole));
-                }
-            } else if (mode === 'grade4') {
-                if (stage <= 10) {
-                    if (Math.random() < 0.5) { num1=Math.floor(Math.random()*80)+10; num2=Math.floor(Math.random()*80)+10; generatedProblems.push(createProblem('+',num1,num2,num1+num2)); }
-                    else { num1=Math.floor(Math.random()*80)+20; num2=Math.floor(Math.random()*(num1-10))+10; generatedProblems.push(createProblem('-',num1,num2,num1-num2)); }
-                } else if (stage <= 20) {
-                    if (Math.random() < 0.6) { num1=Math.floor(Math.random()*80)+10; num2=Math.floor(Math.random()*8)+2; generatedProblems.push(createProblem('×',num1,num2,num1*num2)); }
-                    else { const ans=Math.floor(Math.random()*20)+2; num2=Math.floor(Math.random()*8)+2; generatedProblems.push(createProblem('÷',ans*num2,num2,ans)); }
-                } else {
+                    // Lv21-30: ふつう計算メイン (2桁への挑戦)
+                    pType = Math.random() < 0.8 ? 'normal_calc' : 'easy_calc';
+                } else if (stage <= 40) {
+                    // Lv31-40: ふつう計算 + ふつう穴あき (2桁完全習得)
+                    pType = Math.random() < 0.5 ? 'normal_calc' : 'normal_hole';
+                } else if (stage <= 50) {
+                    // Lv41-50: 実力テスト (かんたん多めのランダム)
                     const r = Math.random();
-                    if (r < 0.5) { num1=Math.floor(Math.random()*50)+10; num2=Math.floor(Math.random()*40)+10; generatedProblems.push(createProblem('+',num1,num2,num1+num2, Math.random()<0.5?1:2)); }
-                    else { const ans=Math.floor(Math.random()*15)+2; num2=Math.floor(Math.random()*9)+2; generatedProblems.push(createProblem('÷',ans*num2,num2,ans, Math.random()<0.5?1:2)); }
+                    if (r < 0.4) pType = 'easy_calc';
+                    else if (r < 0.6) pType = 'easy_hole';
+                    else if (r < 0.8) pType = 'normal_calc';
+                    else pType = 'normal_hole';
+                } else {
+                    // Lv51-60: 総仕上げ (ふつう多めのランダム)
+                    const r = Math.random();
+                    if (r < 0.15) pType = 'easy_calc';
+                    else if (r < 0.3) pType = 'easy_hole';
+                    else if (r < 0.7) pType = 'normal_calc';
+                    else pType = 'normal_hole';
+                }
+
+                // 問題データ作成
+                if (pType.includes('easy')) {
+                    // 1桁
+                    const isAdd = Math.random() < 0.6;
+                    if (isAdd) {
+                        num1 = randInt(0, 10); num2 = randInt(0, 10 - num1);
+                        generatedProblems.push(pType === 'easy_calc' ? createProblem('+', num1, num2, num1+num2) : createHole(num1, '+', num2, num1+num2));
+                    } else {
+                        num1 = randInt(2, 10); num2 = randInt(1, num1 - 1);
+                        generatedProblems.push(pType === 'easy_calc' ? createProblem('-', num1, num2, num1-num2) : createHole(num1, '-', num2, num1-num2));
+                    }
+                } else {
+                    // 2桁
+                    const isAdd = Math.random() < 0.6;
+                    if (isAdd) {
+                        num1 = randInt(10, 89); num2 = randInt(10, 99 - num1);
+                        generatedProblems.push(pType === 'normal_calc' ? createProblem('+', num1, num2, num1+num2) : createHole(num1, '+', num2, num1+num2));
+                    } else {
+                        num1 = randInt(20, 99); num2 = randInt(10, num1);
+                        generatedProblems.push(pType === 'normal_calc' ? createProblem('-', num1, num2, num1-num2) : createHole(num1, '-', num2, num1-num2));
+                    }
+                }
+
+            } else if (mode === 'grade4') {
+                // === 4年生 カリキュラム ===
+                if (stage <= 10) {
+                    // Lv1-10: かけ算のみ (瞬発力)
+                    pType = 'mul';
+                } else if (stage <= 20) {
+                    // Lv11-20: かけ算 + わり算 (逆算思考)
+                    pType = Math.random() < 0.5 ? 'mul' : 'div';
+                } else if (stage <= 30) {
+                    // Lv21-30: ふつう計算メイン (暗算力)
+                    pType = 'normal_calc';
+                } else if (stage <= 40) {
+                    // Lv31-40: かけ算穴あき + わり算穴あき (思考力強化)
+                    pType = Math.random() < 0.5 ? 'mul_hole' : 'div_hole';
+                } else if (stage <= 50) {
+                    // Lv41-50: 上級暗算 (ふつう穴あき挑戦)
+                    const r = Math.random();
+                    if (r < 0.6) pType = 'normal_hole';
+                    else if (r < 0.8) pType = 'normal_calc';
+                    else pType = Math.random() < 0.5 ? 'mul' : 'div';
+                } else {
+                    // Lv51-60: 総力戦 (全種ランダム)
+                    const r = Math.random();
+                    if (r < 0.16) pType = 'normal_calc';
+                    else if (r < 0.32) pType = 'normal_hole';
+                    else if (r < 0.48) pType = 'mul';
+                    else if (r < 0.64) pType = 'mul_hole';
+                    else if (r < 0.8) pType = 'div';
+                    else pType = 'div_hole';
+                }
+
+                // 問題データ作成
+                if (pType.includes('normal')) {
+                    const isAdd = Math.random() < 0.5;
+                    if (isAdd) {
+                        num1 = randInt(10, 89); num2 = randInt(10, 99 - num1);
+                        generatedProblems.push(pType === 'normal_calc' ? createProblem('+', num1, num2, num1+num2) : createHole(num1, '+', num2, num1+num2));
+                    } else {
+                        num1 = randInt(20, 99); num2 = randInt(10, num1 - 10);
+                        generatedProblems.push(pType === 'normal_calc' ? createProblem('-', num1, num2, num1-num2) : createHole(num1, '-', num2, num1-num2));
+                    }
+                } else if (pType.includes('mul')) {
+                    num1 = randInt(2, 9); num2 = randInt(2, 9);
+                    generatedProblems.push(pType === 'mul' ? createProblem('×', num1, num2, num1*num2) : createHole(num1, '×', num2, num1*num2));
+                } else {
+                    const ans = randInt(2, 9); num2 = randInt(2, 9);
+                    generatedProblems.push(pType === 'div' ? createProblem('÷', ans*num2, num2, ans) : createHole(ans*num2, '÷', num2, ans));
                 }
             }
         } catch(e) { generatedProblems.push({q:"1+1", a:2, type:'+'}); }
@@ -214,7 +327,7 @@ function showDamageEffect(damage, isCritical) {
     setTimeout(() => { if (el.parentNode) damageEffectContainer.removeChild(el); }, 800);
 }
 
-// --- 回答処理 ---
+// --- 回答処理 (厳格版: 遅いとダメージ半減) ---
 function handleAnswer(selectedAnswer) {
     if (battleInProgress) return; battleInProgress = true;
     answerChoicesDiv.querySelectorAll('.choice-btn').forEach(b => b.disabled = true); playSound('tap');
@@ -224,33 +337,36 @@ function handleAnswer(selectedAnswer) {
     let baseDamage = 10, damageToEnemy = 0, damageToPlayer = 0, logMessage = "", feedbackText = "", feedbackType = "", isCritical = false, speedBonus = 1.0;
 
     if (selectedAnswer === p.a) {
-        // 正解のとき
         comboCount++;
         
         // 判定ロジック
-        if (elapsed < criticalTime) { feedbackText = "Critical!!"; feedbackType = "critical"; isCritical = true; speedBonus = 1.5; }
-        else if (elapsed < perfectTime) { feedbackText = "Perfect!"; feedbackType = "perfect"; speedBonus = 1.15; }
-        else if (elapsed < greatTime) { feedbackText = "Great!"; feedbackType = "great"; speedBonus = 1.0; }
-        else if (elapsed < goodTime) { feedbackText = "Good"; feedbackType = "good"; speedBonus = 0.9; }
-        else { 
-            // Slowの場合
-            feedbackText = "Slow..."; 
-            feedbackType = "slow"; 
-            speedBonus = 0.5; // 威力半分
+        if (elapsed < criticalTime) { 
+            feedbackText = "Critical!!"; feedbackType = "critical"; isCritical = true; speedBonus = 1.5; 
+        } else if (elapsed < perfectTime) { 
+            feedbackText = "Perfect!"; feedbackType = "perfect"; speedBonus = 1.2; 
+        } else if (elapsed <= greatTime) { 
+            // ここまでが合格（目標ペース達成）
+            feedbackText = "Great!"; feedbackType = "great"; speedBonus = 1.0; 
+        } else { 
+            // ここからは失敗（目標ペース遅れ）→ 5ダメージ
+            feedbackText = "Good"; 
+            feedbackType = "good"; // 色は白
+            speedBonus = 0.5; // ★重要: ダメージ半減。これでは倒しきれない。
             if (gameMode !== 'grade1') comboCount = 0; 
         }
 
-        // ダメージ計算
+        // コンボボーナス（最大1.2倍）
         let comboMultiplier = 1.0;
         if (comboCount >= 10) comboMultiplier = 1.2;
         else if (comboCount >= 5) comboMultiplier = 1.1;
         else if (comboCount >= 2) comboMultiplier = 1.05;
+
         damageToEnemy = Math.floor(baseDamage * speedBonus * comboMultiplier);
         
         let pitch = 1.0 + (Math.min(comboCount, 10) * 0.05);
         playSound('correct', 1.0, 0.5); 
 
-        // ログメッセージと効果音の分岐
+        // ログメッセージと効果音
         if (isCritical) {
             logMessage = `会心の一撃！敵に${damageToEnemy}ダメージ!`;
             playSound('hitCritical', pitch);
@@ -263,17 +379,14 @@ function handleAnswer(selectedAnswer) {
             } else if (feedbackType === "great") {
                 logMessage = `敵に${damageToEnemy}ダメージ!`;
                 playSound('hitGreat', pitch);   
-            } else if (feedbackType === "good") {
-                logMessage = `敵に${damageToEnemy}ダメージ!`;
-                playSound('hitGood', pitch);    
             } else {
-                // Slowの場合: 弱い音
-                logMessage = `おっと！当たりが弱い！${damageToEnemy}ダメージ`;
+                // Good (失敗ペース)の場合
+                logMessage = `スピードが足りない！${damageToEnemy}ダメージ`;
                 playSound('hitGood', 0.6); 
             }
 
-            // Slow以外なら通常攻撃ボイス
-            if (feedbackType !== "slow") {
+            // Good以外なら通常攻撃ボイス
+            if (feedbackType !== "good") {
                 if (comboCount >= 5 && Math.random() < 0.4) playSound('voiceSkill');
                 else playRandomAttackVoice();
             }
@@ -282,9 +395,8 @@ function handleAnswer(selectedAnswer) {
         document.body.classList.add('feedback-flash'); setTimeout(() => document.body.classList.remove('feedback-flash'), 150);
         shakeCharacter('enemyCharacter'); showDamageEffect(damageToEnemy, isCritical);
         
-        // ★修正: Slowの時は絶対に「奥義ボイス」を鳴らさない
-        // かつ、コンボが0（リセットされた直後）の時も鳴らさない
-        if (feedbackType !== "slow" && comboCount > 0) {
+        // Good以外かつコンボ継続中ならコンボ音
+        if (feedbackType !== "good" && comboCount > 0) {
             if (comboCount % 5 === 0 || comboCount === 3) {
                 playSound('comboMilestone');
             }
@@ -296,7 +408,7 @@ function handleAnswer(selectedAnswer) {
         let healAmount = Math.max(1, Math.floor(enemyMaxHP * 0.05));
         if (enemyHP + healAmount > enemyMaxHP) healAmount = enemyMaxHP - enemyHP; 
         enemyHP += healAmount; logMessage = `Miss! 敵が${healAmount}回復した...`;
-        feedbackText = "Heal..."; feedbackType = "wrong"; comboCount = 0;
+        feedbackText = "Miss..."; feedbackType = "wrong"; comboCount = 0;
         document.body.classList.add('feedback-wrong'); setTimeout(() => document.body.classList.remove('feedback-wrong'), 150);
         shakeCharacter('playerCharacter'); playSound('hitPlayer');
         updateHPBar('enemyHPBar', enemyHP, enemyMaxHP); enemyHPText.textContent = enemyHP;
@@ -316,14 +428,20 @@ function startBattle() {
     currentEnemy = enemies[currentStage] || enemies[maxStage];
     questionsForThisStage = (currentEnemy.type === 'boss') ? 35 : 20;
     
-    let stageProgress = currentStage % 10;
-    if (stageProgress === 0) stageProgress = 10;
-    const difficultyScale = { 1: 0.30, 2: 0.35, 3: 0.40, 4: 0.45, 5: 0.50, 6: 0.60, 7: 0.70, 8: 0.80, 9: 0.90, 10: 1.00 };
+    // ★敵HP計算: Great(10ダメ)ですべて正解してギリギリ倒せる設定
+    // 20問 * 10 = HP200
+    // もし全部Good(5ダメ)なら 20問 * 5 = 100ダメ → 倒せない
+    
+    // ステージ進行度によるHP係数は廃止し、純粋に問題数ベースにする
+    // ただしボスは少し硬くしてもよいが、今回は「ペース重視」なのでシンプルに。
+    let hpMultiplier = 1.0; 
+    
+    // 序盤だけ少し手加減（HPを減らす）して自信をつけさせる？
+    // いや、要望は「目標ペース達成」なので、最初から厳密で良い。
+    if (currentStage <= 5) hpMultiplier = 0.8; 
 
-    let multiplier = difficultyScale[stageProgress];
-    enemyMaxHP = Math.floor((questionsForThisStage * 10) * multiplier);
-    if (gameMode === 'grade1') enemyMaxHP = Math.floor(enemyMaxHP * 1);
-
+    enemyMaxHP = Math.floor((questionsForThisStage * 10) * hpMultiplier);
+    
     enemyHP = Math.max(5, enemyMaxHP); playerHP = playerMaxHP; currentProblemIndex = 0; comboCount = 0;
     updateComboDisplay(); problems = generateProblems(currentStage, gameMode, questionsForThisStage);
     enemyName.textContent = `${currentEnemy.emoji} ${currentEnemy.name} (Lv${currentStage})`;
@@ -369,44 +487,40 @@ function endBattle() {
         if (currentStage > maxStage) { battleLog.textContent += " 🏆全クリア！"; startBtn.style.display = "none"; }
         else { startBtn.textContent = `次の敵 (Lv${currentStage}) へ`; startBtn.style.display = "inline-block"; }
     } else {
-        battleLog.textContent = "😭敗北...また挑戦してね！"; startBtn.textContent = "再挑戦！"; startBtn.style.display = "inline-block";
+        battleLog.textContent = "😭敗北...スピードが足りない！"; startBtn.textContent = "再挑戦！"; startBtn.style.display = "inline-block";
     }
 }
 
 // --- ★トレーニング (修正版) ---
 function generateTrainingProblem(type) {
     let num1, num2;
-    // 便利なランダム関数
     function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-    // 穴あき作成ヘルパー
     function createHole(n1, opStr, n2, ans) {
         return Math.random() < 0.5
-          ? { q: `□ ${opStr} ${n2} = ${ans}`, a: n1 }
-          : { q: `${n1} ${opStr} □ = ${ans}`, a: n2 };
+          ? { q: `□ ${opStr} ${n2} = ${ans}`, a: n1, type: opStr }
+          : { q: `${n1} ${opStr} □ = ${ans}`, a: n2, type: opStr };
     }
 
     switch (type) {
-        // --- 1年生レベル ---
         case 'addsub1':
             return Math.random() < 0.6
-                ? { q: `${num1 = randInt(0, 10)} + ${num2 = randInt(0, 10 - num1)}`, a: num1 + num2 }
-                : { q: `${num1 = randInt(2, 10)} - ${num2 = randInt(1, num1 - 1)}`, a: num1 - num2 }; // 0にならないよう調整
+                ? { q: `${num1 = randInt(0, 10)} + ${num2 = randInt(0, 10 - num1)}`, a: num1 + num2, type: '+' }
+                : { q: `${num1 = randInt(2, 10)} - ${num2 = randInt(1, num1 - 1)}`, a: num1 - num2, type: '-' }; 
 
         case 'addsub1_hole':
             return Math.random() < 0.6
                 ? createHole(num1 = randInt(0, 10), '+', num2 = randInt(0, 10 - num1), num1 + num2)
                 : createHole(num1 = randInt(2, 10), '-', num2 = randInt(1, num1 - 1), num1 - num2);
 
-        // --- 2〜3桁・繰り上がり等 ---
         case 'addsub2': {
             if (Math.random() < 0.6) {
                 num1 = randInt(10, 89);
-                num2 = randInt(10, 99 - num1); // 答えを最大99に
-                return { q: `${num1} + ${num2}`, a: num1 + num2 };
+                num2 = randInt(10, 99 - num1); 
+                return { q: `${num1} + ${num2}`, a: num1 + num2, type: '+' };
             } else {
                 num1 = randInt(20, 99);
                 num2 = randInt(10, num1);
-                return { q: `${num1} - ${num2}`, a: num1 - num2 };
+                return { q: `${num1} - ${num2}`, a: num1 - num2, type: '-' };
             }
         }
         case 'addsub2_hole': {
@@ -421,38 +535,35 @@ function generateTrainingProblem(type) {
             }
         }
 
-        // --- かけ算 ---
         case 'mul':
             num1 = randInt(2, 9);
             num2 = randInt(2, 9);
-            return { q: `${num1} × ${num2}`, a: num1 * num2 };
+            return { q: `${num1} × ${num2}`, a: num1 * num2, type: '×' };
 
         case 'mul_hole':
             num1 = randInt(2, 9);
             num2 = randInt(2, 9);
             return createHole(num1, '×', num2, num1 * num2);
 
-        // --- わり算 ---
         case 'div':
             num2 = randInt(2, 9);
             num1 = randInt(2, 9);
-            return { q: `${num2 * num1} ÷ ${num2}`, a: num1 };
+            return { q: `${num2 * num1} ÷ ${num2}`, a: num1, type: '÷' };
 
         case 'div_hole': {
             const divisor = randInt(2, 9);
             const quotient = randInt(2, 9);
             const dividend = divisor * quotient;
             return Math.random() < 0.5
-                ? { q: `□ ÷ ${divisor} = ${quotient}`, a: dividend }
-                : { q: `${dividend} ÷ □ = ${quotient}`, a: divisor };
+                ? { q: `□ ÷ ${divisor} = ${quotient}`, a: dividend, type: '÷' }
+                : { q: `${dividend} ÷ □ = ${quotient}`, a: divisor, type: '÷' };
         }
 
         default:
-            return { q: "1 + 1", a: 2 };
+            return { q: "1 + 1", a: 2, type: '+' };
     }
 }
 
-// ★敵キャラ入れ替え演出
 function popTrainingEnemy() {
     trainingEnemyDisplay.classList.add('defeated');
     setTimeout(() => {
@@ -475,7 +586,7 @@ function showTrainingQuestion() {
             if (c === currentTrainingProblem.a) { 
                 playSound('hitPerfect'); 
                 trainingScore++; 
-                popTrainingEnemy(); // ★敵を変える
+                popTrainingEnemy(); 
                 showFeedback("Correct!", "perfect"); 
             } else { 
                 playSound('wrong'); 
@@ -491,45 +602,23 @@ function showTrainingQuestion() {
 }
 
 function startTraining(type) {
-    // ★バグ修正: タイマー重複防止
     if (trainingTimerInterval) { clearInterval(trainingTimerInterval); trainingTimerInterval = null; }
-
-    gameMode = 'training'; 
-    trainingType = type; 
-    trainingScore = 0; 
-    trainingTimeRemaining = trainingTimeLimit;
-    
-    // ★追加: スタート直後に画面の表示も即リセットする（これがChatGPTの提案部分です）
+    gameMode = 'training'; trainingType = type; trainingScore = 0; trainingTimeRemaining = trainingTimeLimit;
     trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
     trainingScoreDisplay.textContent = `たおした数: ${trainingScore}`;
-
-    modeSelectScreen.style.display = 'none'; 
-    trainingTypeSelectScreen.style.display = 'none'; 
-    trainingScreen.style.display = 'flex';
-    document.body.className = 'training-bg'; 
-    playBgm('bgmTraining'); 
-    
-    // 初期敵キャラセット
+    modeSelectScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'none'; trainingScreen.style.display = 'flex';
+    document.body.className = 'training-bg'; playBgm('bgmTraining'); 
     trainingEnemyDisplay.textContent = trainingEnemies[Math.floor(Math.random() * trainingEnemies.length)];
-    
     showTrainingQuestion();
-    
     trainingTimerInterval = setInterval(() => {
-        trainingTimeRemaining--; 
-        trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
-        
+        trainingTimeRemaining--; trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
         if (trainingTimeRemaining <= 0) { 
-            clearInterval(trainingTimerInterval); 
-            stopBgm(); 
-            
-            // 結果画面表示と自己ベスト更新
+            clearInterval(trainingTimerInterval); stopBgm(); 
             finalScore.textContent = `${trainingScore} ひき たおした！`; 
             const isNew = saveBestScore(trainingType, trainingScore);
             const best = loadBestScore(trainingType);
             personalBest.textContent = `じこベスト: ${best} ひき${isNew ? " 🎉" : ""}`;
-
-            trainingScreen.style.display = 'none'; 
-            trainingResultScreen.style.display = 'flex'; 
+            trainingScreen.style.display = 'none'; trainingResultScreen.style.display = 'flex'; 
         }
     }, 1000);
 }
@@ -537,21 +626,16 @@ function startTraining(type) {
 function quitTraining() {
     if (trainingTimerInterval) { clearInterval(trainingTimerInterval); trainingTimerInterval = null; }
     stopBgm(); playSound('tap');
-    
-    document.body.className = ''; // ★バグ修正: 背景リセット
-    
-    trainingScreen.style.display = 'none'; 
-    trainingTypeSelectScreen.style.display = 'flex';
+    document.body.className = ''; 
+    trainingScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'flex';
 }
 
-// --- メニュー ---
 function showModeSelect() { stopBgm(); document.body.className = ''; modeSelectScreen.style.display = 'flex'; startMethodScreen.style.display = 'none'; battleScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'none'; trainingScreen.style.display = 'none'; trainingResultScreen.style.display = 'none'; }
 function selectMode(m) { playSound('tap'); gameMode = m; highestClearedStage = loadHighestStage(gameMode); modeSelectScreen.style.display = 'none'; startMethodScreen.style.display = 'flex'; continueFromLastBtn.textContent = highestClearedStage > 0 && highestClearedStage < maxStage ? `つづきから (Lv ${highestClearedStage + 1})` : "つづきから"; continueFromLastBtn.style.display = highestClearedStage > 0 && highestClearedStage < maxStage ? 'inline-block' : 'none'; }
 
 document.getElementById("grade1ModeBtn").addEventListener("click", () => selectMode('grade1'));
 document.getElementById("grade4ModeBtn").addEventListener("click", () => selectMode('grade4'));
 trainingModeBtn.addEventListener("click", () => { playSound('tap'); modeSelectScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'flex'; stopBgm(); });
-
 startFromBeginningBtn.addEventListener('click', () => { currentStage = 1; playSound('tap'); startMethodScreen.style.display = 'none'; battleScreen.style.display = 'flex'; document.body.className = ''; startBattle(); });
 continueFromLastBtn.addEventListener('click', () => { currentStage = highestClearedStage + 1; if (currentStage > maxStage) currentStage = maxStage; playSound('tap'); startMethodScreen.style.display = 'none'; battleScreen.style.display = 'flex'; document.body.className = ''; startBattle(); });
 startBtn.addEventListener("click", () => { playSound('tap'); enemyCharacter.classList.remove('defeated'); startBattle(); });
@@ -561,24 +645,6 @@ backToModeSelectBtn.addEventListener('click', showModeSelect);
 backToModeSelectBtnFromTraining.addEventListener('click', showModeSelect);
 quitTrainingBtn.addEventListener('click', quitTraining);
 
-// 初期化
 loadBgmSetting(bgmToggleBtn); playerHPText.textContent = playerHP; updateHPBar('playerHPBar', playerHP, playerMaxHP); showModeSelect();
-
-
-// スタート方法選択画面から「もどる」
-document.getElementById("backToModeFromStartMethodBtn").addEventListener("click", () => {
-    playSound('tap');
-    showModeSelect();
-});
-
-// バトル画面から「中断してメニューへ」
-document.getElementById("quitBattleBtn").addEventListener("click", () => {
-    playSound('tap');
-    battleInProgress = false;
-    stopBgm();
-    document.body.className = ''; 
-    bossDefeatedOverlay.style.display = 'none';
-    showModeSelect();
-});
-
-
+document.getElementById("backToModeFromStartMethodBtn").addEventListener("click", () => { playSound('tap'); showModeSelect(); });
+document.getElementById("quitBattleBtn").addEventListener("click", () => { playSound('tap'); battleInProgress = false; stopBgm(); document.body.className = ''; bossDefeatedOverlay.style.display = 'none'; showModeSelect(); });
