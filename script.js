@@ -315,7 +315,7 @@ function startBattle() {
     
     let stageProgress = currentStage % 10;
     if (stageProgress === 0) stageProgress = 10;
-    const difficultyScale = { 1: 0.80, 2: 0.82, 3: 0.84, 4: 0.86, 5: 0.88, 6: 0.90, 7: 0.93, 8: 0.96, 9: 0.98, 10: 1.00 };
+    const difficultyScale = { 1: 0.30, 2: 0.35, 3: 0.40, 4: 0.45, 5: 0.50, 6: 0.60, 7: 0.70, 8: 0.80, 9: 0.90, 10: 1.00 };
 
     let multiplier = difficultyScale[stageProgress];
     enemyMaxHP = Math.floor((questionsForThisStage * 10) * multiplier);
