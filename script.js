@@ -228,8 +228,8 @@ function handleAnswer(selectedAnswer) {
         comboCount++;
         
         // 判定ロジック
-        if (elapsed < criticalTime) { feedbackText = "Critical!!"; feedbackType = "critical"; isCritical = true; speedBonus = 1.2; }
-        else if (elapsed < perfectTime) { feedbackText = "Perfect!"; feedbackType = "perfect"; speedBonus = 1.1; }
+        if (elapsed < criticalTime) { feedbackText = "Critical!!"; feedbackType = "critical"; isCritical = true; speedBonus = 1.5; }
+        else if (elapsed < perfectTime) { feedbackText = "Perfect!"; feedbackType = "perfect"; speedBonus = 1.15; }
         else if (elapsed < greatTime) { feedbackText = "Great!"; feedbackType = "great"; speedBonus = 1.0; }
         else if (elapsed < goodTime) { feedbackText = "Good"; feedbackType = "good"; speedBonus = 0.9; }
         else { 
@@ -241,7 +241,10 @@ function handleAnswer(selectedAnswer) {
         }
 
         // ダメージ計算
-        let comboMultiplier = comboCount >= 6 ? 1.1 : (comboCount >= 3 ? 1.05 : 1.0);
+        let comboMultiplier = 1.0;
+        if (comboCount >= 10) comboMultiplier = 1.2;
+        else if (comboCount >= 5) comboMultiplier = 1.1;
+        else if (comboCount >= 2) comboMultiplier = 1.05;
         damageToEnemy = Math.floor(baseDamage * speedBonus * comboMultiplier);
         
         let pitch = 1.0 + (Math.min(comboCount, 10) * 0.05);
