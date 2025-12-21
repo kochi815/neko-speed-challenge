@@ -322,7 +322,7 @@ function startBattle() {
 
     let multiplier = difficultyScale[stageProgress];
     enemyMaxHP = Math.floor((questionsForThisStage * 10) * multiplier);
-    if (gameMode === 'grade1') enemyMaxHP = Math.floor(enemyMaxHP * 0.9);
+    if (gameMode === 'grade1') enemyMaxHP = Math.floor(enemyMaxHP * 1);
 
     enemyHP = Math.max(5, enemyMaxHP); playerHP = playerMaxHP; currentProblemIndex = 0; comboCount = 0;
     updateComboDisplay(); problems = generateProblems(currentStage, gameMode, questionsForThisStage);
