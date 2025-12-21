@@ -224,56 +224,75 @@ function handleAnswer(selectedAnswer) {
     let baseDamage = 10, damageToEnemy = 0, damageToPlayer = 0, logMessage = "", feedbackText = "", feedbackType = "", isCritical = false, speedBonus = 1.0;
 
     if (selectedAnswer === p.a) {
+        // 正解のとき
         comboCount++;
+        
+        // 判定ロジック
         if (elapsed < criticalTime) { feedbackText = "Critical!!"; feedbackType = "critical"; isCritical = true; speedBonus = 1.2; }
         else if (elapsed < perfectTime) { feedbackText = "Perfect!"; feedbackType = "perfect"; speedBonus = 1.1; }
         else if (elapsed < greatTime) { feedbackText = "Great!"; feedbackType = "great"; speedBonus = 1.0; }
         else if (elapsed < goodTime) { feedbackText = "Good"; feedbackType = "good"; speedBonus = 0.9; }
         else { 
-            feedbackText = "Slow..."; feedbackType = "slow"; speedBonus = 0.5; 
+            // Slowの場合
+            feedbackText = "Slow..."; 
+            feedbackType = "slow"; 
+            speedBonus = 0.5; // ★変更: 威力半分で攻撃成功とする
             if (gameMode !== 'grade1') comboCount = 0; 
         }
 
-        if (feedbackType !== "slow") {
-            let comboMultiplier = comboCount >= 6 ? 1.1 : (comboCount >= 3 ? 1.05 : 1.0);
-            damageToEnemy = Math.floor(baseDamage * speedBonus * comboMultiplier);
-            logMessage = `敵に${damageToEnemy}ダメージ!`;
-            
-            let pitch = 1.0 + (Math.min(comboCount, 10) * 0.05);
-            playSound('correct', 1.0, 0.5); 
+        // ★変更: Slowでも攻撃処理を行うように条件を削除（if (feedbackType !== "slow") を削除）
+        
+        // ダメージ計算
+        let comboMultiplier = comboCount >= 6 ? 1.1 : (comboCount >= 3 ? 1.05 : 1.0);
+        damageToEnemy = Math.floor(baseDamage * speedBonus * comboMultiplier);
+        
+        // 音のピッチ計算
+        let pitch = 1.0 + (Math.min(comboCount, 10) * 0.05);
+        playSound('correct', 1.0, 0.5); 
 
-            if (isCritical) {
-                playSound('hitCritical', pitch);
-                if (Math.random() < 0.7) playSound('voiceSkill'); 
-                else playRandomAttackVoice();
+        // ログメッセージと効果音の分岐
+        if (isCritical) {
+            logMessage = `会心の一撃！敵に${damageToEnemy}ダメージ!`;
+            playSound('hitCritical', pitch);
+            if (Math.random() < 0.7) playSound('voiceSkill'); 
+            else playRandomAttackVoice();
+        } else {
+            if (feedbackType === "perfect") {
+                logMessage = `敵に${damageToEnemy}ダメージ!`;
+                playSound('hitPerfect', pitch); 
+            } else if (feedbackType === "great") {
+                logMessage = `敵に${damageToEnemy}ダメージ!`;
+                playSound('hitGreat', pitch);   
+            } else if (feedbackType === "good") {
+                logMessage = `敵に${damageToEnemy}ダメージ!`;
+                playSound('hitGood', pitch);    
             } else {
-                // ★修正: sound.js の定義に従ってファイルを使い分ける
-                if (feedbackType === "perfect") {
-                    playSound('hitPerfect', pitch); // hit_heavy.mp3
-                } else if (feedbackType === "great") {
-                    playSound('hitGreat', pitch);   // hit_perfect.mp3
-                } else {
-                    playSound('hitGood', pitch);    // hit_normal.mp3
-                }
+                // ★Slowの場合: 弱めのメッセージと、ピッチを下げた鈍い音
+                logMessage = `おっと！当たりが弱い！${damageToEnemy}ダメージ`;
+                // hitGood(hit_normal.mp3)を 0.6倍速で再生すると「ボコッ」という弱い音になります
+                playSound('hitGood', 0.6); 
+            }
 
+            // Slow以外ならボイスを鳴らす（Slowでボイスはかっこ悪いので無し）
+            if (feedbackType !== "slow") {
                 if (comboCount >= 5 && Math.random() < 0.4) playSound('voiceSkill');
                 else playRandomAttackVoice();
             }
-
-            document.body.classList.add('feedback-flash'); setTimeout(() => document.body.classList.remove('feedback-flash'), 150);
-            shakeCharacter('enemyCharacter'); showDamageEffect(damageToEnemy, isCritical);
-            if (comboCount % 5 === 0 || comboCount === 3) playSound('comboMilestone');
-        } else {
-            logMessage = "遅かった... 攻撃がかわされた！"; playSound('hitPlayer');
         }
+
+        document.body.classList.add('feedback-flash'); setTimeout(() => document.body.classList.remove('feedback-flash'), 150);
+        shakeCharacter('enemyCharacter'); showDamageEffect(damageToEnemy, isCritical);
+        if (comboCount % 5 === 0 || comboCount === 3) playSound('comboMilestone');
+
     } else {
+        // 不正解のとき（ここはそのまま）
         playSound('wrong'); damageToPlayer = 1;
         let healAmount = Math.max(1, Math.floor(enemyMaxHP * 0.05));
         if (enemyHP + healAmount > enemyMaxHP) healAmount = enemyMaxHP - enemyHP; 
         enemyHP += healAmount; logMessage = `Miss! 敵が${healAmount}回復した...`;
         feedbackText = "Heal..."; feedbackType = "wrong"; comboCount = 0;
         document.body.classList.add('feedback-wrong'); setTimeout(() => document.body.classList.remove('feedback-wrong'), 150);
-        shakeCharacter('playerCharacter'); playSound('hitPlayer');
+        shakeCharacter('playerCharacter'); playSound('hitPlayer'); // ★こっちはダメージ音でOK
         updateHPBar('enemyHPBar', enemyHP, enemyMaxHP); enemyHPText.textContent = enemyHP;
     }
 
