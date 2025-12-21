@@ -105,7 +105,7 @@ function getProblemTimeLimit(mode, type, qText) {
             if (isTwoDigit) {
                 limits = [3.0, 5.0, 6.25, 10.0];
             } else {
-                limits = [1.0, 1.5, 1.92, 2.1];
+                limits = [0.8, 1.2, 1.8, 2.0];
             }
         }
     }
