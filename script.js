@@ -1,7 +1,3 @@
-{
-type: uploaded file
-fileName: script.js
-fullContent:
 // --- グローバル変数等 ---
 let currentStage = 1;
 let gameMode = '';
@@ -251,8 +247,15 @@ function handleAnswer(selectedAnswer) {
                 if (Math.random() < 0.7) playSound('voiceSkill'); 
                 else playRandomAttackVoice();
             } else {
-                if (feedbackType === "perfect") playSound('hitPerfect', pitch);
-                else playSound('hitGood', pitch);
+                // ★修正: sound.js の定義に従ってファイルを使い分ける
+                if (feedbackType === "perfect") {
+                    playSound('hitPerfect', pitch); // hit_heavy.mp3
+                } else if (feedbackType === "great") {
+                    playSound('hitGreat', pitch);   // hit_perfect.mp3
+                } else {
+                    playSound('hitGood', pitch);    // hit_normal.mp3
+                }
+
                 if (comboCount >= 5 && Math.random() < 0.4) playSound('voiceSkill');
                 else playRandomAttackVoice();
             }
@@ -524,4 +527,3 @@ quitTrainingBtn.addEventListener('click', quitTraining);
 
 // 初期化
 loadBgmSetting(bgmToggleBtn); playerHPText.textContent = playerHP; updateHPBar('playerHPBar', playerHP, playerMaxHP); showModeSelect();
-}
