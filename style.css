@@ -36,7 +36,7 @@ button {
     outline: none;
     -webkit-tap-highlight-color: transparent; /* スマホタップ時の枠消し */
     
-    /* ★追加: スマホでの連打反応を改善し、ダブルタップ拡大を防ぐ */
+    /* スマホでの連打反応を改善し、ダブルタップ拡大を防ぐ */
     touch-action: manipulation;
     user-select: none;
 }
@@ -437,10 +437,11 @@ body.feedback-flash { animation: flashWhite 0.15s ease-out; }
 body.feedback-wrong { animation: flashRed 0.2s ease-out; }
 @keyframes flashRed { 0% { background-color: #ffcdd2; } 100% { background-color: #fdf6e3; } }
 
-/* --- ダメージエフェクト --- */
+/* --- ダメージエフェクト（★位置調整修正済み） --- */
 .damage-popup {
     position: absolute;
     left: 50%;
+    top: 50%; /* ★追加: 垂直方向もコンテナの真ん中を基準にする */
     font-size: 2.2em;
     font-weight: 900;
     color: #d32f2f;
@@ -459,9 +460,10 @@ body.feedback-wrong { animation: flashRed 0.2s ease-out; }
 }
 
 @keyframes damageFadeUp {
-    0% { opacity: 0; transform: translate(-50%, 10px) scale(0.5); }
+    /* ★修正: 出現位置を少し下げ(+20px)、上昇距離を控えめ(-40px)にして見切れ防止 */
+    0% { opacity: 0; transform: translate(-50%, 20px) scale(0.5); }
     20% { opacity: 1; transform: translate(-50%, 0) scale(1.2); }
-    100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -40px) scale(1); }
 }
 
 /* --- ボス撃破演出 --- */

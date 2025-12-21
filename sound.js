@@ -15,7 +15,7 @@ const sounds = {
     // 斬撃音（既存ファイルを活用）
     hitGood: new Audio('hit_normal.mp3'),     // 通常斬撃
     hitGreat: new Audio('hit_perfect.mp3'),   // 強斬撃
-    hitPerfect: new Audio('hit_perfect.mp3'), // 強斬撃
+    hitPerfect: new Audio('hit_heavy.mp3'), // 強斬撃
     hitCritical: new Audio('critical_hit.mp3'), // 必殺斬撃
 
     // 女剣士ボイス

@@ -1,3 +1,7 @@
+{
+type: uploaded file
+fileName: script.js
+fullContent:
 // --- グローバル変数等 ---
 let currentStage = 1;
 let gameMode = '';
@@ -24,6 +28,9 @@ let trainingTimerInterval = null;
 const BEST_SCORE_KEY_PREFIX = 'nekobattle_bestScore_';
 let currentTrainingProblem = null;
 let comboDisplayTimeoutId = null;
+
+// トレーニング用敵キャラリスト
+const trainingEnemies = ["💧","🦇","👻","💀","🐗","🧊","🔥","🗿","👺","🐉","👽"];
 
 // --- DOM要素取得 ---
 const modeSelectScreen = document.getElementById("modeSelectScreen");
@@ -119,7 +126,7 @@ function getProblemTimeLimit(mode, type, qText) {
     return limits;
 }
 
-// --- 問題生成 ---
+// --- 問題生成 (通常バトル用) ---
 function generateProblems(stage, mode, count) {
     const generatedProblems = [];
     let num1, num2;
@@ -133,7 +140,12 @@ function generateProblems(stage, mode, count) {
             if (mode === 'grade1') {
                 if (stage <= 10) {
                     if (Math.random() < 0.6) { num1=Math.floor(Math.random()*11); num2=Math.floor(Math.random()*(11-num1)); generatedProblems.push(createProblem('+',num1,num2,num1+num2)); }
-                    else { num1=Math.floor(Math.random()*11); num2=Math.floor(Math.random()*num1); generatedProblems.push(createProblem('-',num1,num2,num1-num2)); }
+                    // ★修正: 答えが0にならないように、かつ簡単な引き算
+                    else { 
+                        num1 = Math.floor(Math.random() * 9) + 2; 
+                        num2 = Math.floor(Math.random() * (num1 - 1)) + 1; 
+                        generatedProblems.push(createProblem('-',num1,num2,num1-num2)); 
+                    }
                 } else if (stage <= 20) {
                     if (Math.random() < 0.5) { num1=Math.floor(Math.random()*9)+2; num2=Math.floor(Math.random()*9)+2; generatedProblems.push(createProblem('+',num1,num2,num1+num2)); }
                     else { num1=Math.floor(Math.random()*11)+10; num2=Math.floor(Math.random()*9)+1; generatedProblems.push(createProblem('-',num1,num2,num1-num2)); }
@@ -206,7 +218,7 @@ function showDamageEffect(damage, isCritical) {
     setTimeout(() => { if (el.parentNode) damageEffectContainer.removeChild(el); }, 800);
 }
 
-// --- ★回答処理（ボイス演出完全対応） ---
+// --- 回答処理 ---
 function handleAnswer(selectedAnswer) {
     if (battleInProgress) return; battleInProgress = true;
     answerChoicesDiv.querySelectorAll('.choice-btn').forEach(b => b.disabled = true); playSound('tap');
@@ -231,30 +243,18 @@ function handleAnswer(selectedAnswer) {
             damageToEnemy = Math.floor(baseDamage * speedBonus * comboMultiplier);
             logMessage = `敵に${damageToEnemy}ダメージ!`;
             
-            // ★音響演出強化
-            // 1. コンボ数に応じて斬撃音のピッチを上げる (最大1.5倍)
             let pitch = 1.0 + (Math.min(comboCount, 10) * 0.05);
-            
-            // 2. 正解音をうっすら重ねる
             playSound('correct', 1.0, 0.5); 
 
             if (isCritical) {
-                // クリティカル：必殺斬撃音 + 高確率で「紫電一閃」
                 playSound('hitCritical', pitch);
                 if (Math.random() < 0.7) playSound('voiceSkill'); 
                 else playRandomAttackVoice();
             } else {
-                // 通常/Perfect：強さに応じた斬撃音
                 if (feedbackType === "perfect") playSound('hitPerfect', pitch);
                 else playSound('hitGood', pitch);
-
-                // ボイス分岐: コンボ5以上ならたまに「紫電一閃」
-                if (comboCount >= 5 && Math.random() < 0.4) {
-                    playSound('voiceSkill');
-                } else {
-                    // それ以外はランダム攻撃ボイス（40%で鳴る）
-                    playRandomAttackVoice();
-                }
+                if (comboCount >= 5 && Math.random() < 0.4) playSound('voiceSkill');
+                else playRandomAttackVoice();
             }
 
             document.body.classList.add('feedback-flash'); setTimeout(() => document.body.classList.remove('feedback-flash'), 150);
@@ -283,7 +283,7 @@ function handleAnswer(selectedAnswer) {
     setTimeout(() => { if (playerHP <= 0 || enemyHP <= 0 || currentProblemIndex >= questionsForThisStage) endBattle(); else showQuestion(); }, 1000);
 }
 
-// --- ★startBattle関数（ボスボイス対応・階段状難易度） ---
+// --- startBattle ---
 function startBattle() {
     currentEnemy = enemies[currentStage] || enemies[maxStage];
     questionsForThisStage = (currentEnemy.type === 'boss') ? 35 : 20;
@@ -308,10 +308,9 @@ function startBattle() {
         document.body.classList.add('boss-battle-bg'); 
         battleLog.textContent = `🔥【BOSS】${currentEnemy.name} 出現！🔥`; 
         playBgm('bgmBoss'); 
-        // ★ボス開幕ボイス
         setTimeout(() => {
-            if (Math.random() < 0.5) playSound('voiceBoss1'); // 覚悟しなさい
-            else playSound('voiceBoss2'); // 負けられないわ
+            if (Math.random() < 0.5) playSound('voiceBoss1');
+            else playSound('voiceBoss2');
         }, 500);
     }
     else { 
@@ -322,7 +321,7 @@ function startBattle() {
     startBtn.style.display = "none"; battleInProgress = false; setTimeout(showQuestion, 1500);
 }
 
-// --- endBattle（ボス撃破ボイス対応） ---
+// --- endBattle ---
 function endBattle() {
     battleInProgress = true; answerChoicesDiv.innerHTML = ""; questionDiv.textContent = "Battle End!";
     comboDisplay.classList.remove('show'); stopBgm();
@@ -330,8 +329,7 @@ function endBattle() {
     if (isVictory) {
         enemyCharacter.classList.add('defeated'); playSound('enemyDefeated');
         if (currentEnemy.type === 'boss') {
-            // ★ボス撃破ボイス
-            setTimeout(() => playSound('voiceWin'), 1000); // 先を急ぎましょう
+            setTimeout(() => playSound('voiceWin'), 1000); 
 
             bossDefeatedMessage.textContent = `🎉 ${currentEnemy.name} 撃破！ 🎉`;
             bossDefeatedOverlay.style.display = 'flex'; bossDefeatedOverlay.style.opacity = '1';
@@ -347,44 +345,164 @@ function endBattle() {
     }
 }
 
-// --- トレーニング ---
+// --- ★トレーニング (修正版) ---
 function generateTrainingProblem(type) {
     let num1, num2;
-    function createHole(n1, opStr, n2, ans) { return Math.random()<0.5 ? { q: `□ ${opStr} ${n2} = ${ans}`, a: n1 } : { q: `${n1} ${opStr} □ = ${ans}`, a: n2 }; }
+    // 便利なランダム関数
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    // 穴あき作成ヘルパー
+    function createHole(n1, opStr, n2, ans) {
+        return Math.random() < 0.5
+          ? { q: `□ ${opStr} ${n2} = ${ans}`, a: n1 }
+          : { q: `${n1} ${opStr} □ = ${ans}`, a: n2 };
+    }
+
     switch (type) {
-        case 'addsub1': return Math.random()<0.6 ? { q: `${num1=Math.floor(Math.random()*11)} + ${num2=Math.floor(Math.random()*(11-num1))}`, a: num1+num2 } : { q: `${num1=Math.floor(Math.random()*11)} - ${num2=Math.floor(Math.random()*num1)}`, a: num1-num2 };
-        case 'addsub1_hole': return Math.random()<0.6 ? createHole(num1=Math.floor(Math.random()*11), '+', num2=Math.floor(Math.random()*(11-num1)), num1+num2) : createHole(num1=Math.floor(Math.random()*11), '-', num2=Math.floor(Math.random()*num1), num1-num2);
-        case 'mul': return { q: `${num1=Math.floor(Math.random()*8)+2} × ${num2=Math.floor(Math.random()*8)+2}`, a: num1*num2 };
-        case 'div': return { q: `${(num2=Math.floor(Math.random()*8)+2)*(num1=Math.floor(Math.random()*8)+2)} ÷ ${num2}`, a: num1 };
-        default: return { q: "1 + 1", a: 2 };
+        // --- 1年生レベル ---
+        case 'addsub1':
+            return Math.random() < 0.6
+                ? { q: `${num1 = randInt(0, 10)} + ${num2 = randInt(0, 10 - num1)}`, a: num1 + num2 }
+                : { q: `${num1 = randInt(2, 10)} - ${num2 = randInt(1, num1 - 1)}`, a: num1 - num2 }; // 0にならないよう調整
+
+        case 'addsub1_hole':
+            return Math.random() < 0.6
+                ? createHole(num1 = randInt(0, 10), '+', num2 = randInt(0, 10 - num1), num1 + num2)
+                : createHole(num1 = randInt(2, 10), '-', num2 = randInt(1, num1 - 1), num1 - num2);
+
+        // --- 2〜3桁・繰り上がり等 ---
+        case 'addsub2': {
+            if (Math.random() < 0.6) {
+                num1 = randInt(10, 89);
+                num2 = randInt(10, 99 - num1); // 答えを最大99に
+                return { q: `${num1} + ${num2}`, a: num1 + num2 };
+            } else {
+                num1 = randInt(20, 99);
+                num2 = randInt(10, num1);
+                return { q: `${num1} - ${num2}`, a: num1 - num2 };
+            }
+        }
+        case 'addsub2_hole': {
+            if (Math.random() < 0.6) {
+                num1 = randInt(10, 89);
+                num2 = randInt(10, 99 - num1);
+                return createHole(num1, '+', num2, num1 + num2);
+            } else {
+                num1 = randInt(20, 99);
+                num2 = randInt(10, num1);
+                return createHole(num1, '-', num2, num1 - num2);
+            }
+        }
+
+        // --- かけ算 ---
+        case 'mul':
+            num1 = randInt(2, 9);
+            num2 = randInt(2, 9);
+            return { q: `${num1} × ${num2}`, a: num1 * num2 };
+
+        case 'mul_hole':
+            num1 = randInt(2, 9);
+            num2 = randInt(2, 9);
+            return createHole(num1, '×', num2, num1 * num2);
+
+        // --- わり算 ---
+        case 'div':
+            num2 = randInt(2, 9);
+            num1 = randInt(2, 9);
+            return { q: `${num2 * num1} ÷ ${num2}`, a: num1 };
+
+        case 'div_hole': {
+            const divisor = randInt(2, 9);
+            const quotient = randInt(2, 9);
+            const dividend = divisor * quotient;
+            return Math.random() < 0.5
+                ? { q: `□ ÷ ${divisor} = ${quotient}`, a: dividend }
+                : { q: `${dividend} ÷ □ = ${quotient}`, a: divisor };
+        }
+
+        default:
+            return { q: "1 + 1", a: 2 };
     }
 }
+
+// ★敵キャラ入れ替え演出
+function popTrainingEnemy() {
+    trainingEnemyDisplay.classList.add('defeated');
+    setTimeout(() => {
+        trainingEnemyDisplay.textContent = trainingEnemies[Math.floor(Math.random() * trainingEnemies.length)];
+        trainingEnemyDisplay.classList.remove('defeated');
+    }, 120);
+}
+
 function showTrainingQuestion() {
-    if (trainingTimeRemaining <= 0) return; currentTrainingProblem = generateTrainingProblem(trainingType);
-    trainingQuestion.textContent = currentTrainingProblem.q; trainingAnswerChoices.innerHTML = "";
+    if (trainingTimeRemaining <= 0) return; 
+    currentTrainingProblem = generateTrainingProblem(trainingType);
+    trainingQuestion.textContent = currentTrainingProblem.q; 
+    trainingAnswerChoices.innerHTML = "";
+    
     generateChoices(currentTrainingProblem.a).forEach(c => {
         const btn = document.createElement("button"); btn.textContent = c; btn.className = "choice-btn";
         btn.onclick = () => {
             if (battleInProgress) return; battleInProgress = true; playSound('tap');
-            if (c === currentTrainingProblem.a) { playSound('hitPerfect'); trainingScore++; showFeedback("Correct!", "perfect"); }
-            else { playSound('wrong'); trainingTimeRemaining = Math.max(0, trainingTimeRemaining - 5); showFeedback("Wrong!", "wrong"); }
-            trainingScoreDisplay.textContent = `たおした数: ${trainingScore}`; setTimeout(showTrainingQuestion, 200);
-        }; trainingAnswerChoices.appendChild(btn);
-    }); battleInProgress = false;
+            
+            if (c === currentTrainingProblem.a) { 
+                playSound('hitPerfect'); 
+                trainingScore++; 
+                popTrainingEnemy(); // ★敵を変える
+                showFeedback("Correct!", "perfect"); 
+            } else { 
+                playSound('wrong'); 
+                trainingTimeRemaining = Math.max(0, trainingTimeRemaining - 5); 
+                showFeedback("Wrong!", "wrong"); 
+            }
+            trainingScoreDisplay.textContent = `たおした数: ${trainingScore}`; 
+            setTimeout(showTrainingQuestion, 200);
+        }; 
+        trainingAnswerChoices.appendChild(btn);
+    }); 
+    battleInProgress = false;
 }
+
 function startTraining(type) {
+    // ★バグ修正: タイマー重複防止
+    if (trainingTimerInterval) { clearInterval(trainingTimerInterval); trainingTimerInterval = null; }
+
     gameMode = 'training'; trainingType = type; trainingScore = 0; trainingTimeRemaining = trainingTimeLimit;
     modeSelectScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'none'; trainingScreen.style.display = 'flex';
-    document.body.className = 'training-bg'; playBgm('bgmTraining'); showTrainingQuestion();
+    document.body.className = 'training-bg'; playBgm('bgmTraining'); 
+    
+    // 初期敵キャラセット
+    trainingEnemyDisplay.textContent = trainingEnemies[Math.floor(Math.random() * trainingEnemies.length)];
+    
+    showTrainingQuestion();
+    
     trainingTimerInterval = setInterval(() => {
-        trainingTimeRemaining--; trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
-        if (trainingTimeRemaining <= 0) { clearInterval(trainingTimerInterval); stopBgm(); finalScore.textContent = `${trainingScore} ひき たおした！`; saveBestScore(trainingType, trainingScore); trainingScreen.style.display = 'none'; trainingResultScreen.style.display = 'flex'; }
+        trainingTimeRemaining--; 
+        trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
+        
+        if (trainingTimeRemaining <= 0) { 
+            clearInterval(trainingTimerInterval); 
+            stopBgm(); 
+            
+            // ★修正: 結果画面表示と自己ベスト更新
+            finalScore.textContent = `${trainingScore} ひき たおした！`; 
+            const isNew = saveBestScore(trainingType, trainingScore);
+            const best = loadBestScore(trainingType);
+            personalBest.textContent = `じこベスト: ${best} ひき${isNew ? " 🎉" : ""}`;
+
+            trainingScreen.style.display = 'none'; 
+            trainingResultScreen.style.display = 'flex'; 
+        }
     }, 1000);
 }
+
 function quitTraining() {
     if (trainingTimerInterval) { clearInterval(trainingTimerInterval); trainingTimerInterval = null; }
     stopBgm(); playSound('tap');
-    trainingScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'flex';
+    
+    document.body.className = ''; // ★バグ修正: 背景リセット
+    
+    trainingScreen.style.display = 'none'; 
+    trainingTypeSelectScreen.style.display = 'flex';
 }
 
 // --- メニュー ---
@@ -406,3 +524,4 @@ quitTrainingBtn.addEventListener('click', quitTraining);
 
 // 初期化
 loadBgmSetting(bgmToggleBtn); playerHPText.textContent = playerHP; updateHPBar('playerHPBar', playerHP, playerMaxHP); showModeSelect();
+}
