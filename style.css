@@ -1,0 +1,489 @@
+/* --- 基本スタイル等 --- */
+body {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    text-align: center;
+    background-color: #fdf6e3; /* 通常背景 */
+    margin: 0;
+    padding: 15px;
+    transition: background-color 0.3s ease-out;
+    position: relative;
+    min-height: 100vh;
+    box-sizing: border-box;
+    overflow-x: hidden; /* 横スクロール防止 */
+}
+
+body.boss-battle-bg {
+    background-color: #ffebee; /* ボス戦背景 */
+}
+
+body.training-bg {
+    background-color: #e3f2fd; /* トレーニング背景 */
+}
+
+h1 {
+    font-size: 1.8em;
+    color: #d35400; /* オレンジ系 */
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+button {
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    border: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent; /* スマホタップ時の枠消し */
+    
+    /* ★追加: スマホでの連打反応を改善し、ダブルタップ拡大を防ぐ */
+    touch-action: manipulation;
+    user-select: none;
+}
+
+button:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* --- BGMトグルボタン --- */
+#bgmToggleBtn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 1.8em;
+    background: none;
+    border: none;
+    padding: 5px;
+    opacity: 0.7;
+    z-index: 20;
+}
+
+#bgmToggleBtn:hover {
+    opacity: 1;
+}
+
+#bgmToggleBtn.muted::before { content: "🔇"; font-size: 1em; }
+#bgmToggleBtn:not(.muted)::before { content: "🔊"; font-size: 1em; }
+
+/* --- 画面コンテナ --- */
+.screen {
+    display: none; /* 基本は非表示 */
+    padding-top: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+#modeSelectScreen { display: flex; } /* 初期表示 */
+
+/* --- モード選択画面 --- */
+#modeSelectScreen h2 { font-size: 1.5em; color: #555; margin-bottom: 10px; }
+
+.mode-btn {
+    font-size: 1.2em;
+    padding: 15px 25px;
+    border-radius: 18px;
+    color: white;
+    min-width: 220px;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1); /* 立体感 */
+}
+
+#grade1ModeBtn { background-color: #87cefa; }
+#grade4ModeBtn { background-color: #ffcc80; }
+#trainingModeBtn { background-color: #ff7f50; }
+
+#grade1ModeBtn:hover { background-color: #5abcd8; }
+#grade4ModeBtn:hover { background-color: #ffa726; }
+#trainingModeBtn:hover { background-color: #ff6347; }
+
+/* --- スタート方法選択画面 --- */
+#startMethodScreen h2 { font-size: 1.5em; color: #555; }
+
+.start-method-btn {
+    font-size: 1.4em;
+    padding: 15px 40px;
+    border-radius: 25px;
+    color: white;
+    min-width: 250px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+}
+
+#startFromBeginningBtn { background-color: #a5d6a7; }
+#continueFromLastBtn { background-color: #90caf9; }
+
+#startFromBeginningBtn:hover { background-color: #81c784; }
+#continueFromLastBtn:hover:not(:disabled) { background-color: #64b5f6; }
+
+/* --- トレーニングメニューのグリッド表示 --- */
+#trainingTypeSelectScreen h2 { font-size: 1.3em; color: #555; margin-bottom: 10px; }
+
+.training-menu-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2列表示 */
+    gap: 12px; /* ボタン同士の間隔 */
+    width: 95%;
+    max-width: 500px;
+}
+
+.training-type-btn {
+    font-size: 1.0em;
+    padding: 12px 5px;
+    border-radius: 12px;
+    color: white;
+    background-color: #4db6ac;
+    width: 100%;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+}
+
+.training-type-btn:hover { background-color: #26a69a; }
+
+/* 穴あき問題ボタンの色を変える */
+.training-type-btn[data-training-type$="_hole"] {
+    background-color: #7986cb; /* インディゴ系 */
+}
+.training-type-btn[data-training-type$="_hole"]:hover {
+    background-color: #5c6bc0;
+}
+
+#backToModeSelectBtn {
+    font-size: 1em;
+    padding: 10px 30px;
+    background-color: #bdbdbd;
+    color: #fff;
+    border-radius: 15px;
+    margin-top: 15px;
+}
+#backToModeSelectBtn:hover { background-color: #9e9e9e;}
+
+
+/* --- バトル画面 --- */
+#battleScreen { gap: 10px; }
+
+.character-area {
+    border: 3px solid #eee;
+    border-radius: 12px;
+    padding: 10px;
+    margin: 5px 0;
+    width: 90%;
+    max-width: 400px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+#enemyArea { border-color: #ef5350; }
+#playerArea { border-color: #42a5f5; }
+
+.character-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #444;
+}
+
+.character-name { font-size: 1.0em; }
+.character-hp-text { font-size: 0.9em; }
+
+.hp-bar-container {
+    height: 18px;
+    background-color: #e0e0e0;
+    border-radius: 9px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
+}
+
+.hp-bar {
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    transition: width 0.3s ease-in-out, background-color 0.3s;
+}
+
+#enemyArea .hp-bar { background-color: #ef5350; }
+#playerArea .hp-bar { background-color: #66bb6a; }
+
+.character-display {
+    font-size: 3.5em;
+    margin: 5px 0;
+    transition: transform 0.1s ease-in-out, opacity 0.3s ease-out;
+    opacity: 1;
+}
+.character-display.defeated { opacity: 0; transform: scale(0.5) rotate(30deg); }
+
+#question {
+    font-size: 2.2em;
+    margin: 15px 0;
+    color: #2c3e50;
+    font-weight: 700;
+    min-height: 1.3em;
+    letter-spacing: 2px;
+}
+
+#answerChoices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.choice-btn {
+    font-size: 1.4em;
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 2px solid #ffb74d;
+    background-color: #fff;
+    color: #333;
+    min-width: 80px;
+    box-shadow: 0 3px 0 #ffe0b2;
+}
+
+.choice-btn:hover:not(:disabled) {
+    background-color: #fff3e0;
+    transform: translateY(-2px);
+}
+.choice-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 1px 0 #ffe0b2;
+}
+
+.choice-btn:disabled {
+    background-color: #eee;
+    border-color: #ccc;
+    color: #aaa;
+    box-shadow: none;
+    transform: none;
+}
+
+#battleLog {
+    font-size: 1.0em;
+    min-height: 1.5em;
+    margin: 10px 0;
+    color: #d81b60;
+    font-weight: bold;
+}
+
+#startBtn {
+    font-size: 1.2em;
+    padding: 12px 35px;
+    margin: 10px 0 5px 0;
+    border-radius: 25px;
+    background-color: #fb8c00;
+    color: white;
+    min-width: 180px;
+    box-shadow: 0 4px 0 #e65100;
+}
+#startBtn:hover { background-color: #f57c00; }
+
+/* --- トレーニング画面 --- */
+#trainingScreen { gap: 15px; }
+
+#trainingStatus {
+    display: flex;
+    justify-content: space-around;
+    width: 90%;
+    max-width: 400px;
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: rgba(255,255,255,0.6);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+#trainingTimer { color: #f57c00; }
+#trainingScore { color: #43a047; }
+
+#trainingEnemyDisplay {
+    font-size: 4em;
+    margin: 10px 0;
+    transition: opacity 0.2s, transform 0.2s;
+}
+#trainingEnemyDisplay.defeated { opacity: 0; transform: scale(0.5); }
+
+#trainingQuestion {
+    font-size: 2.5em;
+    margin: 10px 0;
+    color: #1565c0;
+    font-weight: 700;
+    min-height: 1.3em;
+}
+
+#trainingAnswerChoices {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* --- 中断ボタン --- */
+#quitTrainingBtn:hover {
+    background-color: #c62828;
+}
+
+/* --- トレーニング結果画面 --- */
+#trainingResultScreen { gap: 15px; }
+#trainingResultScreen h2 { font-size: 1.8em; color: #00897b;}
+
+#finalScore {
+    font-size: 2.8em;
+    font-weight: bold;
+    color: #ff5252;
+}
+
+#personalBest {
+    font-size: 1.3em;
+    color: #555;
+    background-color: #fff;
+    padding: 5px 20px;
+    border-radius: 10px;
+}
+
+.result-btn-area {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.result-btn {
+    font-size: 1.1em;
+    padding: 12px 25px;
+    border-radius: 20px;
+    color: white;
+    min-width: 140px;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.2);
+}
+
+#retryTrainingBtn { background-color: #66bb6a; }
+#backToModeSelectBtnFromTraining { background-color: #bdbdbd; }
+
+#retryTrainingBtn:hover { background-color: #43a047; }
+#backToModeSelectBtnFromTraining:hover { background-color: #757575; }
+
+/* --- 共通演出系 --- */
+#feedbackDisplay {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    font-size: 3.5em;
+    font-weight: 800;
+    color: #fff;
+    padding: 10px 25px;
+    border-radius: 15px;
+    opacity: 0;
+    transition: opacity 0.1s ease-out, transform 0.1s ease-out;
+    pointer-events: none;
+    z-index: 100;
+    text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    white-space: nowrap;
+}
+
+#feedbackDisplay.show { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+#feedbackDisplay.critical { color: #ffea00; text-shadow: 4px 4px 0 #d32f2f; }
+#feedbackDisplay.perfect { color: #00e5ff; text-shadow: 3px 3px 0 #01579b; }
+#feedbackDisplay.great { color: #76ff03; text-shadow: 3px 3px 0 #33691e; }
+#feedbackDisplay.good { color: #fff; text-shadow: 3px 3px 0 #555; }
+#feedbackDisplay.slow { color: #b0bec5; text-shadow: 2px 2px 0 #37474f; font-size: 2.5em;}
+#feedbackDisplay.wrong { color: #ff1744; text-shadow: 3px 3px 0 #b71c1c; }
+
+#comboDisplay {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5em;
+    font-weight: 800;
+    color: #ff9800;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 5;
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.8);
+    font-style: italic;
+}
+#comboDisplay.show { opacity: 1; animation: comboBounce 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+#comboDisplay.great-combo { color: #ff3d00; font-size: 3em; }
+#comboDisplay.amazing-combo { color: #d500f9; font-size: 3.5em; text-shadow: 3px 3px 0 #fff; }
+
+@keyframes comboBounce {
+    0% { transform: translateX(-50%) scale(0.5); }
+    50% { transform: translateX(-50%) scale(1.3); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-6px); }
+    80% { transform: translateX(6px); }
+}
+.shake-animation { animation: shake 0.3s ease-in-out; }
+
+body.feedback-flash { animation: flashWhite 0.15s ease-out; }
+@keyframes flashWhite { 0% { background-color: #fff; } 100% { background-color: #fdf6e3; } }
+
+body.feedback-wrong { animation: flashRed 0.2s ease-out; }
+@keyframes flashRed { 0% { background-color: #ffcdd2; } 100% { background-color: #fdf6e3; } }
+
+/* --- ダメージエフェクト --- */
+.damage-popup {
+    position: absolute;
+    left: 50%;
+    font-size: 2.2em;
+    font-weight: 900;
+    color: #d32f2f;
+    text-shadow: 2px 2px 0 #fff;
+    animation: damageFadeUp 0.8s ease-out forwards;
+    white-space: nowrap;
+    transform: translateX(-50%);
+    user-select: none;
+    z-index: 20;
+}
+
+.damage-popup.critical-damage {
+    color: #ff6f00;
+    font-size: 3em;
+    text-shadow: 3px 3px 0 #fff000;
+}
+
+@keyframes damageFadeUp {
+    0% { opacity: 0; transform: translate(-50%, 10px) scale(0.5); }
+    20% { opacity: 1; transform: translate(-50%, 0) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -60px) scale(1); }
+}
+
+/* --- ボス撃破演出 --- */
+#bossDefeatedOverlay.show { display: flex; opacity: 1; }
+#bossDefeatedOverlay.show #bossDefeatedMessage { opacity: 1; transform: scale(1); }
+
+/* --- レスポンシブ --- */
+@media (max-width: 600px) {
+    h1 { font-size: 1.5em; }
+    .character-display { font-size: 3em; }
+    #question, #trainingQuestion { font-size: 1.8em; }
+    .choice-btn { font-size: 1.2em; padding: 10px 15px; min-width: 60px; }
+    #startBtn { font-size: 1em; padding: 12px 25px; min-width: 150px; }
+    #battleLog { font-size: 0.9em; }
+    #feedbackDisplay { font-size: 2.5em; }
+    #comboDisplay { top: 50%; }
+    
+    .training-menu-grid {
+        grid-template-columns: 1fr 1fr; /* スマホでも2列維持が見やすい */
+    }
+    .training-type-btn { font-size: 0.9em; padding: 12px 2px; }
+}

@@ -1,194 +1,119 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ねこスピードチャレンジ</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
-
-  <style>
-    /* --- 前回のスタイルは省略 --- */
-    body {
-      font-family: 'M PLUS Rounded 1c', sans-serif;
-      text-align: center;
-      background-color: #f0f8ff; /* AliceBlue */
-      margin: 0;
-      padding: 15px;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      min-height: 100vh;
-      overflow-y: auto;
-      padding-bottom: 30px;
-      height: 100%;
-      color: #444;
-    }
-    html { height: 100%; }
-    h1 { font-size: 2.2em; color: #4682b4; margin-top: 20px; margin-bottom: 15px; font-weight: 700; }
-    #question {
-        font-size: 4.5em;
-        margin: 30px 0 30px 0;
-        color: #333;
-        font-weight: 700;
-        line-height: 1.2;
-        min-height: 1.5em;
-        /* ステップ2: アニメーションの起点となるスタイルを追加 */
-        opacity: 1; /* 初期状態は不透明 */
-        transform: scale(1); /* 初期状態は等倍 */
-    }
-    #coinInfo { font-size: 1.1em; color: #666; margin-bottom: 10px; }
-    #questionNumber, #timer { font-size: 1.1em; color: #555; margin: 3px 0; }
-    #titleBadge { font-size: 1.3em; color: #ff6347; margin: 15px 0; font-weight: 700; min-height: 1.3em; }
-    #info { font-size: 1.2em; color: #777; margin-bottom: 20px; min-height: 1.5em; }
-    #startBtn, #homeBtn, #rankBtn {
-      font-family: 'M PLUS Rounded 1c', sans-serif;
-      font-size: 1.3em; padding: 15px 35px; margin: 10px;
-      border: none; border-radius: 30px; background-color: #ffb6c1;
-      color: white; cursor: pointer;
-      transition: background-color 0.2s, transform 0.1s;
-      font-weight: 700; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    #startBtn:hover, #homeBtn:hover, #rankBtn:hover { background-color: #ff9aaa; }
-    #startBtn:active, #homeBtn:active, #rankBtn:active { transform: scale(0.97); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-    #rankList { display: none; margin-top: 25px; background: #ffffff; padding: 20px; border-radius: 15px; text-align: left; font-size: 1em; max-width: 500px; width: 90%; margin-left: auto; margin-right: auto; color: #555; border: 1px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-    #rankList h2 { text-align: center; margin-top: 0; margin-bottom: 15px; color: #ff6347; font-size: 1.4em; font-weight: 700; }
-    #rankList ul { list-style: none; padding: 0; }
-    #rankList li { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #eee; line-height: 1.5; }
-    #rankList li:last-child { border-bottom: none; }
-    .highlight { color: #ff6347; font-weight: bold; }
-    @media (max-width: 600px) {
-        body { padding: 10px; padding-bottom: 20px; }
-        h1 { font-size: 1.8em; }
-        #question { font-size: 3.5em; margin: 20px 0 20px 0; }
-        #startBtn, #homeBtn, #rankBtn { font-size: 1.1em; padding: 12px 30px; border-radius: 25px; }
-        #rankList { width: 90%; padding: 15px; }
-        #rankList h2 { font-size: 1.3em; }
-    }
-
-    /* --- ステップ2: アニメーションの追加 --- */
-    @keyframes fadeInScaleUp {
-      from {
-        opacity: 0;
-        transform: scale(0.8); /* 少し小さく透明な状態から開始 */
-      }
-      to {
-        opacity: 1;
-        transform: scale(1); /* 通常のサイズ・不透明度へ */
-      }
-    }
-
-    .animate-reveal {
-      /* アニメーションを適用 */
-      animation: fadeInScaleUp 0.3s ease-out; /* 0.3秒かけて表示 */
-    }
-    /* --- ステップ2 ここまで --- */
-
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ねこバトルチャレンジ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>ねこスピードチャレンジ</h1>
-  <div id="coinInfo">💰 ねこコイン: 0</div>
-  <div id="info">スタートボタンを押してね</div>
-  <div id="questionNumber"></div>
-  <div id="timer"></div>
-  <div id="question">🐱</div>
-  <div id="titleBadge"></div>
-  <div id="rankList">
-    <h2>🏅 称号と報酬一覧</h2>
-    <ul>
-        <li>🚀 光速のネコ：150コイン（～30.0秒）</li>
-        <li>✨ 神速のネコ：130コイン（～35.0秒）</li>
-        <li>⚡ とてもはやねこ：115コイン（～38.0秒）</li>
-        <li>🏃‍♂️ はやねこ：100コイン（～41.0秒）</li>
-        <li>🐾 ちょいはやねこ：90コイン（～44.0秒）</li>
-        <li>🐱 がんばりねこ：80コイン（～47.0秒）</li>
-        <li>😺 ふつうねこ：70コイン（～50.0秒）</li>
-        <li>😸 ふつうよりちょいのんびりねこ：55コイン（～53.0秒）</li>
-        <li>🐢 のんびりねこ：45コイン（～55.0秒）</li>
-        <li>💤 ねむたいねこ：30コイン（～70.0秒）</li>
-        <li>🐌 まったりねこ：10コイン（70.1秒～）</li>
-    </ul>
-  </div>
-  <button id="startBtn">スタート</button>
-  <button id="homeBtn" style="display: none;">ホームにもどる</button>
-  <button id="rankBtn" style="display: inline-block;">称号一覧</button>
+    <h1>ねこバトルチャレンジ</h1>
+    
+    <button id="bgmToggleBtn">🔊</button>
 
-  <script>
-    const totalQuestions = 30;
-    let problems = [];
-    let selected = [];
-    let index = 0;
-    let showingAnswer = false;
-    let startTime = null;
-    let gameStarted = false;
-    let timerInterval;
+    <div id="modeSelectScreen" class="screen">
+        <h2>モードを選んでね！</h2>
+        <button id="grade1ModeBtn" class="mode-btn">🎒 １ねんせい</button>
+        <button id="grade4ModeBtn" class="mode-btn">📚 ４ねんせい</button>
+        <button id="trainingModeBtn" class="mode-btn">💪 トレーニング</button>
+    </div>
 
-    // 要素取得 (question 変数はここで取得済み)
-    const question = document.getElementById("question");
-    const questionNumber = document.getElementById("questionNumber");
-    const timer = document.getElementById("timer");
-    const info = document.getElementById("info");
-    const titleBadge = document.getElementById("titleBadge");
-    const startBtn = document.getElementById("startBtn");
-    const homeBtn = document.getElementById("homeBtn");
-    const coinInfo = document.getElementById("coinInfo");
-    const rankBtn = document.getElementById("rankBtn");
-    const rankList = document.getElementById("rankList");
+    <div id="startMethodScreen" class="screen">
+        <h2>どうやってはじめる？</h2>
+        <button id="startFromBeginningBtn" class="start-method-btn">はじめから (Lv 1)</button>
+        <button id="continueFromLastBtn" class="start-method-btn" style="display: none;">つづきから</button>
+    </div>
 
-    const ranks = [ /* ...ランク定義は省略... */
-        { maxTime: 30.0, title: "🚀 光速のネコ", coins: 150 }, { maxTime: 35.0, title: "✨ 神速のネコ", coins: 130 }, { maxTime: 38.0, title: "⚡ とてもはやねこ", coins: 115 }, { maxTime: 41.0, title: "🏃‍♂️ はやねこ", coins: 100 }, { maxTime: 44.0, title: "🐾 ちょいはやねこ", coins: 90 }, { maxTime: 47.0, title: "🐱 がんばりねこ", coins: 80 }, { maxTime: 50.0, title: "😺 ふつうねこ", coins: 70 }, { maxTime: 53.0, title: "😸 ふつうよりちょいのんびりねこ", coins: 55 }, { maxTime: 55.0, title: "🐢 のんびりねこ", coins: 45 }, { maxTime: 70.0, title: "💤 ねむたいねこ", coins: 30 }, { maxTime: Infinity, title: "🐌 まったりねこ", coins: 10 }
-    ];
-    function getRank(time) { /* ... 省略 ... */ const numericTime = parseFloat(time); for (const rank of ranks) { if (numericTime <= rank.maxTime) { return rank; } } return ranks[ranks.length - 1]; }
-    rankBtn.addEventListener("click", (e) => { /* ... 省略 ... */ e.preventDefault(); e.stopPropagation(); rankList.style.display = rankList.style.display === "none" ? "block" : "none"; });
-    function toggleRankButton(show) { /* ... 省略 ... */ rankBtn.style.display = show ? "inline-block" : "none"; }
-    function getCoins() { /* ... 省略 ... */ return parseInt(localStorage.getItem("coins") || "0"); }
-    function setCoins(value) { /* ... 省略 ... */ localStorage.setItem("coins", value); coinInfo.textContent = `💰 ねこコイン: ${value}`; }
-    function generateProblems() { /* ... 省略 ... */ problems = []; for (let a = 2; a < 10; a++) { for (let b = 2; b < 10; b++) { problems.push({ q: `${a} × ${b}`, a: a * b }); if ((a * b) % a === 0) { problems.push({ q: `${a * b} ÷ ${a}`, a: b }); } if (a !== b && (a * b) % b === 0) { problems.push({ q: `${a * b} ÷ ${b}`, a: a }); } } } for (let i = problems.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [problems[i], problems[j]] = [problems[j], problems[i]]; } selected = problems.slice(0, totalQuestions); }
-    function updateTimer() { /* ... 省略 ... */ const now = Date.now(); const elapsed = ((now - startTime) / 1000).toFixed(1); timer.textContent = `タイム: ${elapsed} 秒`; }
+    <div id="battleScreen" class="screen">
+        <div id="enemyArea" class="character-area"> 
+            <div class="character-info"> 
+                <span class="character-name" id="enemyName"></span> 
+                <span class="character-hp-text">HP: <span id="enemyHPText"></span></span> 
+            </div> 
+            <div class="hp-bar-container"> 
+                <div class="hp-bar" id="enemyHPBar"></div> 
+            </div> 
+            <div class="character-display" id="enemyCharacter"></div>
+            <div id="damageEffectContainer" style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 5; height: 50px; width: 100px;"></div> 
+        </div>
 
-    // 次の問題を表示する関数
-    function showQuestion() {
-      if (index < selected.length) {
-        questionNumber.textContent = `(${index + 1}/${totalQuestions})`;
+        <div id="questionArea"> 
+            <div id="question"></div> 
+            <div id="answerChoices"></div> 
+        </div>
 
-        // --- ステップ2: アニメーション適用 ---
-        question.textContent = selected[index].q; // テキスト設定
-        // アニメーションクラスを一旦削除し、再追加してアニメーションをトリガー
-        question.classList.remove('animate-reveal');
-        void question.offsetWidth; // リフロー強制
-        question.classList.add('animate-reveal');
-        // --- ここまで ---
+        <div id="playerArea" class="character-area"> 
+            <div class="character-display" id="playerCharacter">😺</div> 
+            <div class="hp-bar-container"> 
+                <div class="hp-bar" id="playerHPBar"></div> 
+            </div> 
+            <div class="character-info"> 
+                <span class="character-name">にゃんたろう</span> 
+                <span class="character-hp-text">HP: <span id="playerHPText"></span></span> 
+            </div> 
+        </div>
 
-        showingAnswer = false;
-      } else {
-        endGame();
-      }
-    }
+        <div id="infoArea"> 
+            <div id="battleLog"></div> 
+            <button id="startBtn"></button> 
+        </div>
+    </div>
 
-    // 現在の問題の答えを表示する関数
-    function showAnswer() {
-      // --- ステップ2: アニメーション適用 ---
-      question.textContent = selected[index].a; // テキスト設定
-      // アニメーションクラスを一旦削除し、再追加してアニメーションをトリガー
-      question.classList.remove('animate-reveal');
-      void question.offsetWidth; // リフロー強制
-      question.classList.add('animate-reveal');
-      // --- ここまで ---
+    <div id="trainingTypeSelectScreen" class="screen">
+        <h2>れんしゅうする ないよう を えらんでね！</h2>
+        
+        <div class="training-menu-grid">
+            <button class="training-type-btn" data-training-type="addsub1">かんたん 計算</button>
+            <button class="training-type-btn" data-training-type="addsub1_hole">かんたん 穴あき</button>
+            
+            <button class="training-type-btn" data-training-type="addsub2">ふつう 計算</button>
+            <button class="training-type-btn" data-training-type="addsub2_hole">ふつう 穴あき</button>
+            
+            <button class="training-type-btn" data-training-type="mul">かけ算 (九九)</button>
+            <button class="training-type-btn" data-training-type="mul_hole">かけ算 穴あき</button>
+            
+            <button class="training-type-btn" data-training-type="div">わり算</button>
+            <button class="training-type-btn" data-training-type="div_hole">わり算 穴あき</button>
+        </div>
+    
+        <button id="backToModeSelectBtn" style="margin-top: 20px;">もどる</button>
+    </div>
 
-      showingAnswer = true;
-    }
+    <div id="trainingScreen" class="screen">
+        <div id="trainingStatus"> 
+            <span id="trainingTimer">のこり時間: 50秒</span> 
+            <span id="trainingScore">たおした数: 0</span> 
+        </div>
+        
+        <button id="quitTrainingBtn" style="margin-bottom: 10px; background-color: #ef5350; font-size: 0.9em; padding: 5px 15px; min-width: auto; border-radius: 10px; color: white;">中断してメニューへ</button>
 
-    function nextStep() { /* ... 省略 ... */ if (!gameStarted) return; if (!showingAnswer) { showAnswer(); } else { index++; showQuestion(); } }
-    function endGame() { /* ... 省略 ... */ toggleRankButton(true); clearInterval(timerInterval); gameStarted = false; homeBtn.style.display = "inline-block"; const endTime = Date.now(); const elapsed = ((endTime - startTime) / 1000).toFixed(1); const resultRank = getRank(elapsed); info.innerHTML = `<span class="highlight">おわり！タイム：${elapsed} 秒</span>`; titleBadge.textContent = resultRank.title; const earned = resultRank.coins; const current = getCoins(); setCoins(current + earned); setTimeout(() => { alert(`🎉 ${earned} コインを獲得したよ！`); }, 300); document.documentElement.style.overflowY = "auto"; document.body.style.overflowY = "auto"; }
-    startBtn.addEventListener("click", () => { /* ... 省略 ... */ document.documentElement.style.overflowY = "hidden"; document.body.style.overflowY = "hidden"; questionNumber.textContent = ""; timer.textContent = ""; toggleRankButton(false); rankList.style.display = "none"; generateProblems(); index = 0; gameStarted = true; startTime = Date.now(); startBtn.style.display = "none"; homeBtn.style.display = "none"; info.textContent = "がんばってね！"; titleBadge.textContent = ""; question.textContent = ''; showQuestion(); timerInterval = setInterval(updateTimer, 100); });
-    homeBtn.addEventListener("click", () => { /* ... 省略 ... */ location.reload(); });
-    document.body.addEventListener("click", (e) => { /* ... 省略 ... */ let targetElement = e.target; let isButtonOrRankList = false; const ignoreIds = ["startBtn", "rankBtn", "homeBtn", "rankList"]; while (targetElement != null) { if (ignoreIds.includes(targetElement.id) || targetElement.closest('#rankList')) { isButtonOrRankList = true; break; } targetElement = targetElement.parentElement; } if (!isButtonOrRankList && gameStarted) { nextStep(); } });
-    setCoins(getCoins());
-    window.addEventListener('resize', () => { /* ... 省略 ... */ });
-  </script>
+        <div id="trainingEnemyDisplay">💧</div>
+        <div id="trainingQuestion"></div>
+        <div id="trainingAnswerChoices"></div>
+    </div>
+
+    <div id="trainingResultScreen" class="screen">
+        <h2>トレーニング おわり！</h2>
+        <div>けっか はっぴょう！</div>
+        <div id="finalScore" style="margin: 15px 0;">0 ひき たおした！</div>
+        <div id="personalBest">じこベスト: 0 ひき</div>
+        <div class="result-btn-area"> 
+            <button id="retryTrainingBtn" class="result-btn">もう一回！</button> 
+            <button id="backToModeSelectBtnFromTraining" class="result-btn">モード選択へ</button> 
+        </div>
+    </div>
+
+    <div id="feedbackDisplay"></div>
+    <div id="comboDisplay"></div>
+
+    <div id="bossDefeatedOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; z-index: 50; opacity: 0; transition: opacity 0.5s ease-in-out;">
+        <div id="bossDefeatedMessage" style="font-size: clamp(2em, 8vw, 4em); color: #ffd700; font-weight: bold; text-shadow: 3px 3px 5px rgba(0,0,0,0.8); text-align: center; transform: scale(0.5); opacity: 0; transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-out;">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
