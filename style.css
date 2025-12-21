@@ -67,9 +67,6 @@ button:disabled {
     opacity: 1;
 }
 
-#bgmToggleBtn.muted::before { content: "🔇"; font-size: 1em; }
-#bgmToggleBtn:not(.muted)::before { content: "🔊"; font-size: 1em; }
-
 /* --- 画面コンテナ --- */
 .screen {
     display: none; /* 基本は非表示 */
