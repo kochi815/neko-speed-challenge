@@ -103,9 +103,9 @@ function getProblemTimeLimit(mode, type, qText) {
         if (type === '+' || type === '-') {
             const isTwoDigit = /[1-9][0-9]/.test(qText); 
             if (isTwoDigit) {
-                limits = [3.0, 5.0, 6.25, 10.0];
+                limits = [1.5, 2.5, 3.25, 6.0];
             } else {
-                limits = [0.8, 1.2, 1.8, 2.0];
+                limits = [0.8, 1.2, 1.6, 2.0];
             }
         }
     }
