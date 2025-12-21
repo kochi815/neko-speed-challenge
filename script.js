@@ -145,15 +145,15 @@ function getProblemTimeLimit(mode, type, qText) {
     }
 
     // 判定基準を作成
-    // Critical: 目標の50%
-    // Perfect: 目標の75%
+    // Critical: 目標の60%
+    // Perfect: 目標の80%
     // Great: 目標タイムジャスト (ここまでが合格)
     // Good: それ以降 (失敗扱い)
     return [
-        targetTime * 0.5, 
-        targetTime * 0.75, 
-        targetTime, 
-        999 // Goodの上限は実質無限（遅くてもGood扱い）
+        targetTime * 0.7,  // Critical (かなり速い)
+        targetTime * 0.9,  // Perfect (目標ペース通り)
+        targetTime * 1.1,  // Great (少し遅れてもOK！ここを緩和しました) 
+       999 // Goodの上限は実質無限（遅くてもGood扱い）
     ];
 }
 
@@ -351,7 +351,7 @@ function handleAnswer(selectedAnswer) {
             // ここからは失敗（目標ペース遅れ）→ 5ダメージ
             feedbackText = "Good"; 
             feedbackType = "good"; // 色は白
-            speedBonus = 0.5; // ★重要: ダメージ半減。これでは倒しきれない。
+            speedBonus = 0.7; //
             if (gameMode !== 'grade1') comboCount = 0; 
         }
 
