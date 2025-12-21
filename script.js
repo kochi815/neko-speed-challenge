@@ -469,9 +469,20 @@ function startTraining(type) {
     // ★バグ修正: タイマー重複防止
     if (trainingTimerInterval) { clearInterval(trainingTimerInterval); trainingTimerInterval = null; }
 
-    gameMode = 'training'; trainingType = type; trainingScore = 0; trainingTimeRemaining = trainingTimeLimit;
-    modeSelectScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'none'; trainingScreen.style.display = 'flex';
-    document.body.className = 'training-bg'; playBgm('bgmTraining'); 
+    gameMode = 'training'; 
+    trainingType = type; 
+    trainingScore = 0; 
+    trainingTimeRemaining = trainingTimeLimit;
+    
+    // ★追加: スタート直後に画面の表示も即リセットする（これがChatGPTの提案部分です）
+    trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
+    trainingScoreDisplay.textContent = `たおした数: ${trainingScore}`;
+
+    modeSelectScreen.style.display = 'none'; 
+    trainingTypeSelectScreen.style.display = 'none'; 
+    trainingScreen.style.display = 'flex';
+    document.body.className = 'training-bg'; 
+    playBgm('bgmTraining'); 
     
     // 初期敵キャラセット
     trainingEnemyDisplay.textContent = trainingEnemies[Math.floor(Math.random() * trainingEnemies.length)];
@@ -486,7 +497,7 @@ function startTraining(type) {
             clearInterval(trainingTimerInterval); 
             stopBgm(); 
             
-            // ★修正: 結果画面表示と自己ベスト更新
+            // 結果画面表示と自己ベスト更新
             finalScore.textContent = `${trainingScore} ひき たおした！`; 
             const isNew = saveBestScore(trainingType, trainingScore);
             const best = loadBestScore(trainingType);
@@ -527,3 +538,22 @@ quitTrainingBtn.addEventListener('click', quitTraining);
 
 // 初期化
 loadBgmSetting(bgmToggleBtn); playerHPText.textContent = playerHP; updateHPBar('playerHPBar', playerHP, playerMaxHP); showModeSelect();
+
+
+// スタート方法選択画面から「もどる」
+document.getElementById("backToModeFromStartMethodBtn").addEventListener("click", () => {
+    playSound('tap');
+    showModeSelect();
+});
+
+// バトル画面から「中断してメニューへ」
+document.getElementById("quitBattleBtn").addEventListener("click", () => {
+    playSound('tap');
+    battleInProgress = false;
+    stopBgm();
+    document.body.className = ''; 
+    bossDefeatedOverlay.style.display = 'none';
+    showModeSelect();
+});
+
+
