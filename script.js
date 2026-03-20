@@ -1,7 +1,7 @@
 // --- グローバル変数等 ---
 let currentStage = 1;
 let gameMode = '';
-let playerMaxHP = 15;
+let playerMaxHP = 20;
 let playerHP = playerMaxHP;
 let currentEnemy = {};
 let enemyMaxHP = 10;
@@ -26,7 +26,7 @@ let currentTrainingProblem = null;
 let comboDisplayTimeoutId = null;
 
 // トレーニング用敵キャラリスト
-const trainingEnemies = ["💧","🦇","👻","💀","🐗","🧊","🔥","🗿","👺","🐉","👽"];
+const trainingEnemies = ["🦎","🔥","🦅","⚡","🦈","🌊","💎","🛡️","⭐","🌌","🐉"];
 
 // --- DOM要素取得 ---
 const modeSelectScreen = document.getElementById("modeSelectScreen");
@@ -105,29 +105,28 @@ function getProblemTimeLimit(mode, type, qText) {
     let holeBonus = 0.5; // 穴あきは一律 +0.5秒
 
     if (mode === 'grade1') {
-        // --- 1年生モード ---
-        // 「ふつう(2桁)」判定: 問題文に10以上の数字が含まれるか
-        const isHardProblem = /[1-9][0-9]/.test(qText); 
-        
+        // --- 1年生モード（やや引き締め） ---
+        const isHardProblem = /[1-9][0-9]/.test(qText);
+
         if (isHardProblem) {
-            // ★ふつう計算（目標: 7.1秒）
-            targetTime = 7.1;
+            // ★ふつう計算（目標: 6.0秒 ← 7.1秒から引き締め）
+            targetTime = 6.0;
         } else {
-            // ★かんたん計算（目標: 1.9秒）
-            targetTime = 1.9;
+            // ★かんたん計算（目標: 1.7秒 ← 1.9秒から引き締め）
+            targetTime = 1.7;
         }
     }
     else if (mode === 'grade4') {
-        // --- 4年生モード ---
+        // --- 4年生モード（小4修了レベル向け調整） ---
         if (type === '+' || type === '-') {
-            // ★ふつう計算・2桁（目標: 2.5秒）
-            targetTime = 2.5;
+            // ★ふつう計算・2桁（目標: 4.5秒）
+            targetTime = 4.5;
         } else if (type === '×') {
-            // ★かけ算（目標: 1.6秒）
-            targetTime = 1.6;
+            // ★かけ算（目標: 3.0秒）
+            targetTime = 3.0;
         } else if (type === '÷') {
-            // ★わり算（目標: 1.4秒）
-            targetTime = 1.4;
+            // ★わり算（目標: 3.5秒）
+            targetTime = 3.5;
         }
     } 
     else {
@@ -283,17 +282,17 @@ function generateProblems(stage, mode, count) {
     return generatedProblems;
 }
 
-function generateChoices(correct) { 
+function generateChoices(correct) {
     const choices = new Set(); correct = Math.round(correct); choices.add(correct);
-    let attempts = 0; while (choices.size < 5 && attempts < 50) { 
-        let d = Math.floor(Math.random() * 20) - 10; if (d === 0) d = 1; 
-        let w = correct + d; if (w >= 0 && !choices.has(w)) choices.add(w); attempts++; 
-    } 
-    let filler = 1; while (choices.size < 5) { 
-        let w1 = Math.max(0, correct + filler), w2 = Math.max(0, correct - filler); 
-        if (!choices.has(w1)) choices.add(w1); if (choices.size < 5 && !choices.has(w2)) choices.add(w2); filler++; 
-    } 
-    return Array.from(choices).sort(() => Math.random() - 0.5); 
+    let attempts = 0; while (choices.size < 4 && attempts < 50) {
+        let d = Math.floor(Math.random() * 20) - 10; if (d === 0) d = 1;
+        let w = correct + d; if (w >= 0 && !choices.has(w)) choices.add(w); attempts++;
+    }
+    let filler = 1; while (choices.size < 4) {
+        let w1 = Math.max(0, correct + filler), w2 = Math.max(0, correct - filler);
+        if (!choices.has(w1)) choices.add(w1); if (choices.size < 4 && !choices.has(w2)) choices.add(w2); filler++;
+    }
+    return Array.from(choices).sort(() => Math.random() - 0.5);
 }
 
 function updateHPBar(id, current, max) { document.getElementById(id).style.width = `${Math.max(0, (current / max) * 100)}%`; }
@@ -347,12 +346,12 @@ function handleAnswer(selectedAnswer) {
         } else if (elapsed <= greatTime) { 
             // ここまでが合格（目標ペース達成）
             feedbackText = "Great!"; feedbackType = "great"; speedBonus = 1.0; 
-        } else { 
-            // ここからは失敗（目標ペース遅れ）→ 5ダメージ
-            feedbackText = "Good"; 
-            feedbackType = "good"; // 色は白
-            speedBonus = 0.7; //
-            if (gameMode !== 'grade1') comboCount = 0; 
+        } else {
+            // ここからは遅め判定 → ダメージ減
+            feedbackText = "Good";
+            feedbackType = "good";
+            speedBonus = 0.8;
+            if (gameMode !== 'grade1') comboCount = Math.max(0, comboCount - 1); // コンボ全リセットではなく1減
         }
 
         // コンボボーナス（最大1.2倍）
@@ -368,20 +367,20 @@ function handleAnswer(selectedAnswer) {
 
         // ログメッセージと効果音
         if (isCritical) {
-            logMessage = `会心の一撃！敵に${damageToEnemy}ダメージ!`;
+            logMessage = `かいしんの いちげき！てきに ${damageToEnemy} ダメージ!`;
             playSound('hitCritical', pitch);
             if (Math.random() < 0.7) playSound('voiceSkill'); 
             else playRandomAttackVoice();
         } else {
             if (feedbackType === "perfect") {
-                logMessage = `敵に${damageToEnemy}ダメージ!`;
+                logMessage = `てきに ${damageToEnemy} ダメージ!`;
                 playSound('hitPerfect', pitch); 
             } else if (feedbackType === "great") {
-                logMessage = `敵に${damageToEnemy}ダメージ!`;
+                logMessage = `てきに ${damageToEnemy} ダメージ!`;
                 playSound('hitGreat', pitch);   
             } else {
                 // Good (失敗ペース)の場合
-                logMessage = `スピードが足りない！${damageToEnemy}ダメージ`;
+                logMessage = `スピードが たりない！${damageToEnemy} ダメージ`;
                 playSound('hitGood', 0.6); 
             }
 
@@ -405,9 +404,9 @@ function handleAnswer(selectedAnswer) {
     } else {
         // 不正解のとき
         playSound('wrong'); damageToPlayer = 1;
-        let healAmount = Math.max(1, Math.floor(enemyMaxHP * 0.05));
+        let healAmount = Math.max(1, Math.floor(enemyMaxHP * 0.03));
         if (enemyHP + healAmount > enemyMaxHP) healAmount = enemyMaxHP - enemyHP; 
-        enemyHP += healAmount; logMessage = `Miss! 敵が${healAmount}回復した...`;
+        enemyHP += healAmount; logMessage = `Miss! てきが ${healAmount} かいふくした...`;
         feedbackText = "Miss..."; feedbackType = "wrong"; comboCount = 0;
         document.body.classList.add('feedback-wrong'); setTimeout(() => document.body.classList.remove('feedback-wrong'), 150);
         shakeCharacter('playerCharacter'); playSound('hitPlayer');
@@ -426,19 +425,34 @@ function handleAnswer(selectedAnswer) {
 // --- startBattle ---
 function startBattle() {
     currentEnemy = enemies[currentStage] || enemies[maxStage];
-    questionsForThisStage = (currentEnemy.type === 'boss') ? 35 : 20;
-    
-    // ★敵HP計算: Great(10ダメ)ですべて正解してギリギリ倒せる設定
-    // 20問 * 10 = HP200
-    // もし全部Good(5ダメ)なら 20問 * 5 = 100ダメ → 倒せない
-    
-    // ステージ進行度によるHP係数は廃止し、純粋に問題数ベースにする
-    // ただしボスは少し硬くしてもよいが、今回は「ペース重視」なのでシンプルに。
-    let hpMultiplier = 1.0; 
-    
-    // 序盤だけ少し手加減（HPを減らす）して自信をつけさせる？
-    // いや、要望は「目標ペース達成」なので、最初から厳密で良い。
-    if (currentStage <= 5) hpMultiplier = 0.8; 
+    if (gameMode === 'grade1') {
+        // 1年生モード: ボス25問、通常15問（やや引き締め）
+        questionsForThisStage = (currentEnemy.type === 'boss') ? 25 : 15;
+    } else {
+        // 4年生モード: ボス25問、通常15問（緩和）
+        questionsForThisStage = (currentEnemy.type === 'boss') ? 25 : 15;
+    }
+
+    // ★敵HP計算
+    // Great(10ダメ)で7割正解 + Good(7ダメ)が3割でもクリアできるバランス
+    // 15問: 10*10 + 5*7 = 135 → HP120程度なら倒せる
+    let hpMultiplier = 1.0;
+
+    if (gameMode === 'grade4') {
+        // 4年生: 序盤は自信をつけさせ、後半で歯ごたえを出す
+        if (currentStage <= 10) hpMultiplier = 0.55;
+        else if (currentStage <= 20) hpMultiplier = 0.6;
+        else if (currentStage <= 30) hpMultiplier = 0.65;
+        else if (currentStage <= 40) hpMultiplier = 0.7;
+        else if (currentStage <= 50) hpMultiplier = 0.75;
+        else hpMultiplier = 0.8;
+    } else {
+        // 1年生: 既にクリアできているのでやや引き締め
+        if (currentStage <= 10) hpMultiplier = 0.7;
+        else if (currentStage <= 30) hpMultiplier = 0.8;
+        else if (currentStage <= 50) hpMultiplier = 0.85;
+        else hpMultiplier = 0.9;
+    }
 
     enemyMaxHP = Math.floor((questionsForThisStage * 10) * hpMultiplier);
     
@@ -452,7 +466,7 @@ function startBattle() {
     
     if (currentEnemy.type === 'boss') { 
         document.body.classList.add('boss-battle-bg'); 
-        battleLog.textContent = `🔥【BOSS】${currentEnemy.name} 出現！🔥`; 
+        battleLog.textContent = `🔥【ボス】${currentEnemy.name} あらわれた！🔥`; 
         playBgm('bgmBoss'); 
         setTimeout(() => {
             if (Math.random() < 0.5) playSound('voiceBoss1');
@@ -461,7 +475,7 @@ function startBattle() {
     }
     else { 
         document.body.classList.remove('boss-battle-bg'); 
-        battleLog.textContent = `Lv${currentStage} ${currentEnemy.name} があらわれた！`; 
+        battleLog.textContent = `Lv${currentStage} ${currentEnemy.name} が あらわれた！`; 
         playBgm('bgmNormal'); 
     }
     startBtn.style.display = "none"; battleInProgress = false; setTimeout(showQuestion, 1500);
@@ -477,17 +491,17 @@ function endBattle() {
         if (currentEnemy.type === 'boss') {
             setTimeout(() => playSound('voiceWin'), 1000); 
 
-            bossDefeatedMessage.textContent = `🎉 ${currentEnemy.name} 撃破！ 🎉`;
+            bossDefeatedMessage.textContent = `🎉 ${currentEnemy.name} げきは！ 🎉`;
             bossDefeatedOverlay.style.display = 'flex'; bossDefeatedOverlay.style.opacity = '1';
             bossDefeatedMessage.style.opacity = '1'; bossDefeatedMessage.style.transform = 'scale(1)';
             setTimeout(() => { bossDefeatedOverlay.style.opacity = '0'; setTimeout(() => bossDefeatedOverlay.style.display = 'none', 500); }, 3000);
-            battleLog.textContent = `すごい！ボス ${currentEnemy.name} をたおした！🏆`;
-        } else { battleLog.textContent = `🎉勝利！ ${currentEnemy.name} をたおした！🎉`; }
+            battleLog.textContent = `すごい！ボス ${currentEnemy.name} を たおした！🏆`;
+        } else { battleLog.textContent = `🎉やったー！ ${currentEnemy.name} をたおした！🎉`; }
         saveHighestStage(gameMode, currentStage); currentStage++;
-        if (currentStage > maxStage) { battleLog.textContent += " 🏆全クリア！"; startBtn.style.display = "none"; }
-        else { startBtn.textContent = `次の敵 (Lv${currentStage}) へ`; startBtn.style.display = "inline-block"; }
+        if (currentStage > maxStage) { battleLog.textContent += " 🏆ぜんクリア！すごい！"; startBtn.style.display = "none"; }
+        else { startBtn.textContent = `つぎのてき (Lv${currentStage}) へ`; startBtn.style.display = "inline-block"; }
     } else {
-        battleLog.textContent = "😭敗北...スピードが足りない！"; startBtn.textContent = "再挑戦！"; startBtn.style.display = "inline-block";
+        battleLog.textContent = "😭まけちゃった...もういっかい がんばろう！"; startBtn.textContent = "もういっかい！"; startBtn.style.display = "inline-block";
     }
 }
 
@@ -593,7 +607,7 @@ function showTrainingQuestion() {
                 trainingTimeRemaining = Math.max(0, trainingTimeRemaining - 5); 
                 showFeedback("Wrong!", "wrong"); 
             }
-            trainingScoreDisplay.textContent = `たおした数: ${trainingScore}`; 
+            trainingScoreDisplay.textContent = `たおしたかず: ${trainingScore}`; 
             setTimeout(showTrainingQuestion, 200);
         }; 
         trainingAnswerChoices.appendChild(btn);
@@ -604,14 +618,14 @@ function showTrainingQuestion() {
 function startTraining(type) {
     if (trainingTimerInterval) { clearInterval(trainingTimerInterval); trainingTimerInterval = null; }
     gameMode = 'training'; trainingType = type; trainingScore = 0; trainingTimeRemaining = trainingTimeLimit;
-    trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
-    trainingScoreDisplay.textContent = `たおした数: ${trainingScore}`;
+    trainingTimer.textContent = `のこりじかん: ${trainingTimeRemaining}びょう`;
+    trainingScoreDisplay.textContent = `たおしたかず: ${trainingScore}`;
     modeSelectScreen.style.display = 'none'; trainingTypeSelectScreen.style.display = 'none'; trainingScreen.style.display = 'flex';
     document.body.className = 'training-bg'; playBgm('bgmTraining'); 
     trainingEnemyDisplay.textContent = trainingEnemies[Math.floor(Math.random() * trainingEnemies.length)];
     showTrainingQuestion();
     trainingTimerInterval = setInterval(() => {
-        trainingTimeRemaining--; trainingTimer.textContent = `のこり時間: ${trainingTimeRemaining}秒`;
+        trainingTimeRemaining--; trainingTimer.textContent = `のこりじかん: ${trainingTimeRemaining}びょう`;
         if (trainingTimeRemaining <= 0) { 
             clearInterval(trainingTimerInterval); stopBgm(); 
             finalScore.textContent = `${trainingScore} ひき たおした！`; 

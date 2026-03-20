@@ -30,7 +30,7 @@
     </div>
 
     <div id="battleScreen" class="screen">
-        <button id="quitBattleBtn" style="position: absolute; top: 15px; left: 15px; z-index: 20; font-size: 1em; padding: 8px 15px; background-color: #ef5350; color: white; border-radius: 15px; box-shadow: 0 3px 0 #c62828;">🏠 中断</button>
+        <button id="quitBattleBtn" style="position: absolute; top: 15px; left: 15px; z-index: 20; font-size: 1em; padding: 8px 15px; background-color: #ef5350; color: white; border-radius: 15px; box-shadow: 0 3px 0 #c62828;">🏠 やめる</button>
 
         <div id="enemyArea" class="character-area"> 
             <div class="character-info"> 
@@ -70,17 +70,17 @@
         <h2>れんしゅうする ないよう を えらんでね！</h2>
         
         <div class="training-menu-grid">
-            <button class="training-type-btn" data-training-type="addsub1">かんたん 計算</button>
-            <button class="training-type-btn" data-training-type="addsub1_hole">かんたん 穴あき</button>
-            
-            <button class="training-type-btn" data-training-type="addsub2">ふつう 計算</button>
-            <button class="training-type-btn" data-training-type="addsub2_hole">ふつう 穴あき</button>
-            
-            <button class="training-type-btn" data-training-type="mul">かけ算 (九九)</button>
-            <button class="training-type-btn" data-training-type="mul_hole">かけ算 穴あき</button>
-            
-            <button class="training-type-btn" data-training-type="div">わり算</button>
-            <button class="training-type-btn" data-training-type="div_hole">わり算 穴あき</button>
+            <button class="training-type-btn" data-training-type="addsub1">かんたん けいさん</button>
+            <button class="training-type-btn" data-training-type="addsub1_hole">かんたん あなあき</button>
+
+            <button class="training-type-btn" data-training-type="addsub2">ふつう けいさん</button>
+            <button class="training-type-btn" data-training-type="addsub2_hole">ふつう あなあき</button>
+
+            <button class="training-type-btn" data-training-type="mul">かけざん (九九)</button>
+            <button class="training-type-btn" data-training-type="mul_hole">かけざん あなあき</button>
+
+            <button class="training-type-btn" data-training-type="div">わりざん</button>
+            <button class="training-type-btn" data-training-type="div_hole">わりざん あなあき</button>
         </div>
     
         <button id="backToModeSelectBtn" style="margin-top: 20px;">もどる</button>
@@ -88,11 +88,11 @@
 
     <div id="trainingScreen" class="screen">
         <div id="trainingStatus"> 
-            <span id="trainingTimer">のこり時間: 50秒</span> 
-            <span id="trainingScore">たおした数: 0</span> 
+            <span id="trainingTimer">のこりじかん: 50びょう</span>
+            <span id="trainingScore">たおしたかず: 0</span> 
         </div>
         
-        <button id="quitTrainingBtn" style="margin-bottom: 10px; background-color: #ef5350; font-size: 0.9em; padding: 5px 15px; min-width: auto; border-radius: 10px; color: white;">中断してメニューへ</button>
+        <button id="quitTrainingBtn" style="margin-bottom: 10px; background-color: #ef5350; font-size: 0.9em; padding: 5px 15px; min-width: auto; border-radius: 10px; color: white;">やめてメニューへ</button>
 
         <div id="trainingEnemyDisplay">💧</div>
         <div id="trainingQuestion"></div>
@@ -104,6 +104,7 @@
         <div>けっか はっぴょう！</div>
         <div id="finalScore" style="margin: 15px 0;">0 ひき たおした！</div>
         <div id="personalBest">じこベスト: 0 ひき</div>
+
         <div class="result-btn-area"> 
             <button id="retryTrainingBtn" class="result-btn">もう一回！</button> 
             <button id="backToModeSelectBtnFromTraining" class="result-btn">モード選択へ</button> 
