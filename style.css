@@ -576,4 +576,198 @@ body.feedback-wrong { animation: flashRed 0.2s ease-out; }
     .choice-btn { font-size: 1.3em; padding: 12px 6px; min-height: 50px; }
     .mode-btn { font-size: 1.1em; min-width: 200px; }
     #feedbackDisplay { font-size: 2.2em; }
+    .area-card { padding: 8px 6px; }
+    .area-emoji { font-size: 1.6em; }
+    .area-name { font-size: 0.75em; }
+}
+
+/* ============================================================
+   ★ エリアマップ
+   ============================================================ */
+#areaMapScreen h2 {
+    font-size: 1.5em;
+    color: #5d4037;
+    margin-bottom: 5px;
+}
+
+#mapPlayerInfo {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #e65100;
+    margin-bottom: 8px;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+}
+
+#areaMapGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 95%;
+    max-width: 420px;
+}
+
+.area-card {
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(5px);
+    border: 3px solid #ccc;
+    border-radius: 14px;
+    padding: 12px 8px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.area-card.area-current {
+    transform: scale(1.03);
+    background: rgba(255,255,255,0.95);
+    animation: areaPulse 2s ease-in-out infinite;
+}
+
+.area-card.area-cleared {
+    opacity: 0.6;
+    background: rgba(200,230,200,0.7);
+}
+
+.area-card.area-locked {
+    opacity: 0.35;
+    filter: grayscale(0.5);
+}
+
+.area-emoji { font-size: 2em; margin-bottom: 2px; }
+.area-name { font-size: 0.85em; font-weight: bold; color: #333; }
+.area-progress { font-size: 0.8em; color: #777; margin-top: 2px; }
+.area-boss { font-size: 0.7em; color: #d32f2f; font-weight: bold; margin-top: 3px; }
+
+@keyframes areaPulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(255,152,0,0.3); }
+    50% { box-shadow: 0 0 20px rgba(255,152,0,0.6); }
+}
+
+/* ============================================================
+   ★ 必殺技ゲージ
+   ============================================================ */
+#skillGaugeContainer {
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 4px 0;
+    border: 1px solid #bbb;
+}
+
+#skillGaugeBar {
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #ff9800, #ff5722);
+    transition: width 0.4s ease-in-out;
+}
+
+#skillGaugeBar.skill-ready {
+    background: linear-gradient(90deg, #ffd600, #ff6f00);
+    animation: skillGlow 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes skillGlow {
+    0% { box-shadow: 0 0 5px #ffd600; }
+    100% { box-shadow: 0 0 15px #ff6f00, 0 0 25px #ffd60040; }
+}
+
+#skillBtn {
+    font-size: 1.2em;
+    padding: 10px 25px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #ffd600, #ff9800);
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 4px 0 #e65100, 0 6px 15px rgba(255,152,0,0.3);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    margin: 5px 0;
+    z-index: 10;
+}
+
+#skillBtn.skill-pulse {
+    animation: skillBtnPulse 1s ease-in-out infinite;
+}
+
+@keyframes skillBtnPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); box-shadow: 0 4px 0 #e65100, 0 8px 25px rgba(255,152,0,0.5); }
+}
+
+/* ============================================================
+   ★ アイテムスロット
+   ============================================================ */
+#itemSlots {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 6px;
+    min-height: 38px;
+    align-items: center;
+}
+
+.item-btn {
+    font-size: 1.5em;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 2px solid #81c784;
+    background: linear-gradient(180deg, #fff, #e8f5e9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 0 #a5d6a7;
+    padding: 0;
+    cursor: pointer;
+}
+
+.item-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 0 #a5d6a7, 0 6px 10px rgba(0,0,0,0.1);
+}
+
+.item-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 #a5d6a7;
+}
+
+.item-slot-empty {
+    font-size: 1.5em;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ccc;
+    background: rgba(255,255,255,0.3);
+}
+
+/* ============================================================
+   ★ タイマー攻撃警告
+   ============================================================ */
+#enemyAttackWarning {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #d32f2f;
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    border: 2px solid #ef5350;
+    border-radius: 12px;
+    padding: 8px 16px;
+    margin-bottom: 8px;
+    animation: warningPulse 0.6s ease-in-out infinite alternate;
+    text-align: center;
+}
+
+@keyframes warningPulse {
+    0% { transform: scale(1); opacity: 0.8; box-shadow: 0 0 5px rgba(211,47,47,0.3); }
+    100% { transform: scale(1.03); opacity: 1; box-shadow: 0 0 15px rgba(211,47,47,0.5); }
+}
+
+/* ============================================================
+   ★ 進化演出
+   ============================================================ */
+#evolutionOverlay {
+    z-index: 55;
 }

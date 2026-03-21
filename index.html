@@ -11,9 +11,10 @@
 </head>
 <body>
     <h1>ねこバトルチャレンジ</h1>
-    
+
     <button id="bgmToggleBtn">🔊</button>
 
+    <!-- モード選択 -->
     <div id="modeSelectScreen" class="screen">
         <h2>モードを選んでね！</h2>
         <button id="grade1ModeBtn" class="mode-btn">🎒 １ねんせい</button>
@@ -21,102 +22,122 @@
         <button id="trainingModeBtn" class="mode-btn">💪 トレーニング</button>
     </div>
 
+    <!-- スタート方法選択 -->
     <div id="startMethodScreen" class="screen">
         <h2>どうやってはじめる？</h2>
         <button id="startFromBeginningBtn" class="start-method-btn">はじめから (Lv 1)</button>
         <button id="continueFromLastBtn" class="start-method-btn" style="display: none;">つづきから</button>
-        
         <button id="backToModeFromStartMethodBtn" style="margin-top: 15px; background-color: #bdbdbd; color: white; padding: 10px 30px; border-radius: 20px; font-size: 1.2em;">もどる</button>
     </div>
 
+    <!-- ★新: エリアマップ画面 -->
+    <div id="areaMapScreen" class="screen">
+        <h2>🗺️ ぼうけんマップ</h2>
+        <div id="mapPlayerInfo"></div>
+        <div id="areaMapGrid"></div>
+        <button id="mapStartBattleBtn" class="mode-btn" style="background: linear-gradient(135deg, #ff9800, #fb8c00); box-shadow: 0 5px 0 #e65100; margin-top: 10px;">⚔️ たたかう！</button>
+        <button id="backToModeFromMapBtn" style="margin-top: 8px; background-color: #bdbdbd; color: white; padding: 10px 30px; border-radius: 20px; font-size: 1.1em;">もどる</button>
+    </div>
+
+    <!-- バトル画面 -->
     <div id="battleScreen" class="screen">
         <button id="quitBattleBtn" style="position: absolute; top: 15px; left: 15px; z-index: 20; font-size: 1em; padding: 8px 15px; background-color: #ef5350; color: white; border-radius: 15px; box-shadow: 0 3px 0 #c62828;">🏠 やめる</button>
 
-        <div id="enemyArea" class="character-area"> 
-            <div class="character-info"> 
-                <span class="character-name" id="enemyName"></span> 
-                <span class="character-hp-text">HP: <span id="enemyHPText"></span></span> 
-            </div> 
-            <div class="hp-bar-container"> 
-                <div class="hp-bar" id="enemyHPBar"></div> 
-            </div> 
+        <div id="enemyArea" class="character-area">
+            <div class="character-info">
+                <span class="character-name" id="enemyName"></span>
+                <span class="character-hp-text">HP: <span id="enemyHPText"></span></span>
+            </div>
+            <div class="hp-bar-container">
+                <div class="hp-bar" id="enemyHPBar"></div>
+            </div>
             <div class="character-display" id="enemyCharacter"></div>
-            <div id="damageEffectContainer" style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 5; height: 50px; width: 100px;"></div> 
+            <div id="damageEffectContainer" style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 5; height: 50px; width: 100px;"></div>
         </div>
 
-        <div id="questionArea"> 
-            <div id="question"></div> 
-            <div id="answerChoices"></div> 
+        <div id="questionArea">
+            <div id="enemyAttackWarning" style="display: none;"></div>
+            <div id="question"></div>
+            <div id="answerChoices"></div>
         </div>
 
-        <div id="playerArea" class="character-area"> 
-            <div class="character-display" id="playerCharacter">😺</div> 
-            <div class="hp-bar-container"> 
-                <div class="hp-bar" id="playerHPBar"></div> 
-            </div> 
-            <div class="character-info"> 
-                <span class="character-name">にゃんたろう</span> 
-                <span class="character-hp-text">HP: <span id="playerHPText"></span></span> 
-            </div> 
+        <!-- ★新: 必殺技ボタン -->
+        <button id="skillBtn" style="display: none;">⚡ ひっさつわざ！</button>
+
+        <div id="playerArea" class="character-area">
+            <div class="character-display" id="playerCharacter">😺</div>
+            <!-- ★新: 必殺技ゲージ -->
+            <div id="skillGaugeContainer">
+                <div id="skillGaugeBar"></div>
+            </div>
+            <div class="hp-bar-container">
+                <div class="hp-bar" id="playerHPBar"></div>
+            </div>
+            <div class="character-info">
+                <span class="character-name" id="playerNameDisplay">にゃんたろう</span>
+                <span class="character-hp-text">HP: <span id="playerHPText"></span></span>
+            </div>
+            <!-- ★新: アイテムスロット -->
+            <div id="itemSlots"></div>
         </div>
 
-        <div id="infoArea"> 
-            <div id="battleLog"></div> 
-            <button id="startBtn"></button> 
+        <div id="infoArea">
+            <div id="battleLog"></div>
+            <button id="startBtn"></button>
         </div>
     </div>
 
+    <!-- トレーニング種類選択 -->
     <div id="trainingTypeSelectScreen" class="screen">
         <h2>れんしゅうする ないよう を えらんでね！</h2>
-        
         <div class="training-menu-grid">
             <button class="training-type-btn" data-training-type="addsub1">かんたん けいさん</button>
             <button class="training-type-btn" data-training-type="addsub1_hole">かんたん あなあき</button>
-
             <button class="training-type-btn" data-training-type="addsub2">ふつう けいさん</button>
             <button class="training-type-btn" data-training-type="addsub2_hole">ふつう あなあき</button>
-
             <button class="training-type-btn" data-training-type="mul">かけざん (九九)</button>
             <button class="training-type-btn" data-training-type="mul_hole">かけざん あなあき</button>
-
             <button class="training-type-btn" data-training-type="div">わりざん</button>
             <button class="training-type-btn" data-training-type="div_hole">わりざん あなあき</button>
         </div>
-    
         <button id="backToModeSelectBtn" style="margin-top: 20px;">もどる</button>
     </div>
 
+    <!-- トレーニング実行画面 -->
     <div id="trainingScreen" class="screen">
-        <div id="trainingStatus"> 
+        <div id="trainingStatus">
             <span id="trainingTimer">のこりじかん: 50びょう</span>
-            <span id="trainingScore">たおしたかず: 0</span> 
+            <span id="trainingScore">たおしたかず: 0</span>
         </div>
-        
         <button id="quitTrainingBtn" style="margin-bottom: 10px; background-color: #ef5350; font-size: 0.9em; padding: 5px 15px; min-width: auto; border-radius: 10px; color: white;">やめてメニューへ</button>
-
-        <div id="trainingEnemyDisplay">💧</div>
+        <div id="trainingEnemyDisplay">🦎</div>
         <div id="trainingQuestion"></div>
         <div id="trainingAnswerChoices"></div>
     </div>
 
+    <!-- トレーニング結果 -->
     <div id="trainingResultScreen" class="screen">
         <h2>トレーニング おわり！</h2>
         <div>けっか はっぴょう！</div>
         <div id="finalScore" style="margin: 15px 0;">0 ひき たおした！</div>
         <div id="personalBest">じこベスト: 0 ひき</div>
-
-        <div class="result-btn-area"> 
-            <button id="retryTrainingBtn" class="result-btn">もう一回！</button> 
-            <button id="backToModeSelectBtnFromTraining" class="result-btn">モード選択へ</button> 
+        <div class="result-btn-area">
+            <button id="retryTrainingBtn" class="result-btn">もう一回！</button>
+            <button id="backToModeSelectBtnFromTraining" class="result-btn">モードせんたくへ</button>
         </div>
     </div>
 
+    <!-- 演出オーバーレイ -->
     <div id="feedbackDisplay"></div>
     <div id="comboDisplay"></div>
 
     <div id="bossDefeatedOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; z-index: 50; opacity: 0; transition: opacity 0.5s ease-in-out;">
-        <div id="bossDefeatedMessage" style="font-size: clamp(2em, 8vw, 4em); color: #ffd700; font-weight: bold; text-shadow: 3px 3px 5px rgba(0,0,0,0.8); text-align: center; transform: scale(0.5); opacity: 0; transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-out;">
-        </div>
+        <div id="bossDefeatedMessage" style="font-size: clamp(2em, 8vw, 4em); color: #ffd700; font-weight: bold; text-shadow: 3px 3px 5px rgba(0,0,0,0.8); text-align: center; transform: scale(0.5); opacity: 0; transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-out;"></div>
+    </div>
+
+    <!-- ★新: 進化演出オーバーレイ -->
+    <div id="evolutionOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255,215,0,0.8), rgba(255,152,0,0.8)); justify-content: center; align-items: center; opacity: 0; transition: opacity 0.5s ease-in-out;">
+        <div id="evolutionMessage" style="font-size: clamp(1.5em, 7vw, 3em); color: #fff; font-weight: bold; text-shadow: 3px 3px 5px rgba(0,0,0,0.5); text-align: center; transform: scale(0.5); opacity: 0; transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease-out;"></div>
     </div>
 
     <script src="data.js"></script>
