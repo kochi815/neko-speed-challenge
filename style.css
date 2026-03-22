@@ -322,6 +322,25 @@ button:disabled {
 }
 #startBtn:hover { background: linear-gradient(135deg, #fb8c00, #f57c00); }
 
+#nextBattleBtn {
+    font-size: 1.3em;
+    padding: 14px 40px;
+    margin: 8px 0 5px 0;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #43a047, #388e3c);
+    color: white;
+    min-width: 200px;
+    box-shadow: 0 5px 0 #1b5e20, 0 8px 15px rgba(0,0,0,0.1);
+    letter-spacing: 1px;
+    animation: nextBattlePulse 1.5s ease-in-out infinite;
+}
+#nextBattleBtn:hover { background: linear-gradient(135deg, #388e3c, #2e7d32); }
+
+@keyframes nextBattlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
 /* --- トレーニング画面 --- */
 #trainingScreen { gap: 15px; }
 
@@ -557,6 +576,7 @@ body.feedback-wrong { animation: flashRed 0.2s ease-out; }
     #question, #trainingQuestion { font-size: 2.0em; }
     .choice-btn { font-size: 1.5em; padding: 14px 8px; min-height: 56px; }
     #startBtn { font-size: 1.1em; padding: 14px 30px; min-width: 180px; }
+    #nextBattleBtn { font-size: 1.1em; padding: 14px 30px; min-width: 180px; }
     #battleLog { font-size: 0.95em; }
     #feedbackDisplay { font-size: 2.8em; }
     #comboDisplay { top: 50%; }

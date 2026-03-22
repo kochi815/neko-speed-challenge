@@ -94,6 +94,7 @@ const mapPlayerInfo = document.getElementById("mapPlayerInfo");
 const mapStartBattleBtn = document.getElementById("mapStartBattleBtn");
 const battleScreen = document.getElementById("battleScreen");
 const startBtn = document.getElementById("startBtn");
+const nextBattleBtn = document.getElementById("nextBattleBtn");
 const questionDiv = document.getElementById("question");
 const answerChoicesDiv = document.getElementById("answerChoices");
 const battleLog = document.getElementById("battleLog");
@@ -933,6 +934,7 @@ function endBattle() {
             battleLog.textContent += " 🏆ぜんクリア！すごい！";
             startBtn.textContent = "🏠 モードせんたくへ";
             startBtn.style.display = "inline-block";
+            nextBattleBtn.style.display = "none";
             startBtn.onclick = () => {
                 playSound('tap');
                 document.body.className = '';
@@ -942,17 +944,36 @@ function endBattle() {
         } else {
             // 進化チェック
             showEvolutionIfNeeded(oldStage, currentStage);
+
+            const nextEnemy = enemies[currentStage] || enemies[maxStage];
+            const isBossNext = nextEnemy && nextEnemy.type === 'boss';
+
             // マップへ戻るボタン
             startBtn.textContent = `🗺️ マップへ`;
             startBtn.style.display = "inline-block";
             startBtn.onclick = () => {
                 playSound('tap');
                 document.body.className = '';
+                nextBattleBtn.style.display = "none";
                 hideAllScreens();
                 showAreaMap();
-                // onclickを元に戻す
                 startBtn.onclick = defaultStartBtnHandler;
             };
+
+            // ★連戦ボタン: ボス戦以外は「つぎへ」を表示
+            if (!isBossNext) {
+                nextBattleBtn.textContent = `⚔️ つぎへ (Lv${currentStage})`;
+                nextBattleBtn.style.display = "inline-block";
+                nextBattleBtn.onclick = () => {
+                    playSound('tap');
+                    nextBattleBtn.style.display = "none";
+                    enemyCharacter.classList.remove('defeated');
+                    startBattle();
+                };
+            } else {
+                // 次がボス戦の場合はマップで確認させる
+                nextBattleBtn.style.display = "none";
+            }
         }
     } else {
         // ★敗北時: HP持ち越しリセット（次回は全回復）
@@ -961,6 +982,7 @@ function endBattle() {
         battleLog.textContent = "😭まけちゃった...もういっかい がんばろう！";
         startBtn.textContent = "もういっかい！";
         startBtn.style.display = "inline-block";
+        nextBattleBtn.style.display = "none";
         startBtn.onclick = defaultStartBtnHandler;
     }
 }
@@ -1106,4 +1128,4 @@ quitTrainingBtn.addEventListener('click', quitTraining);
 // 初期化
 loadBgmSetting(bgmToggleBtn); playerHPText.textContent = playerHP; updateHPBar('playerHPBar', playerHP, playerMaxHP); showModeSelect();
 document.getElementById("backToModeFromStartMethodBtn").addEventListener("click", () => { playSound('tap'); showModeSelect(); });
-document.getElementById("quitBattleBtn").addEventListener("click", () => { playSound('tap'); battleInProgress = false; clearEnemyAttackTimer(); clearAllGameTimeouts(); stopBgm(); document.body.className = ''; bossDefeatedOverlay.style.display = 'none'; showModeSelect(); });
+document.getElementById("quitBattleBtn").addEventListener("click", () => { playSound('tap'); battleInProgress = false; clearEnemyAttackTimer(); clearAllGameTimeouts(); stopBgm(); document.body.className = ''; bossDefeatedOverlay.style.display = 'none'; nextBattleBtn.style.display = 'none'; showModeSelect(); });
